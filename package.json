@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "chai": "^4.3.6",
+    "dotenv": "^16.0.1",
+    "ethers": "^5.6.8",
+    "hardhat": "^2.9.6",
+    "solc": "^0.8.14-fixed"
+  }
+}
