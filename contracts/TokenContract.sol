@@ -46,9 +46,8 @@ contract TokenContract {
 
     function transfer(address _to, uint256 _value) public returns (bool success)
     {
-      require(_value <= _balances[msg.sender]);
-  
-      return true;
+       _transfer(msg.sender, _to, _value);
+       return true;
     }
 
     function _mint(address account, uint256 amount) internal virtual {
@@ -61,12 +60,42 @@ contract TokenContract {
 
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success)
     {
+        require(msg.sender != address(0), "ERC20: approve from the zero address");
+        require(_from != address(0), "ERC20: approve to the zero address");
+        require(_allowances[msg.sender][_from] >= _value, "ERC20: transfer amount exceeds allowance");
+        uint256 currentAllowance = _allowances[msg.sender][_from];
+        _approve(msg.sender, _from, currentAllowance - _value);
+        _transfer(_from, _to, _value);
+       return true;
+    }
+
+    function _transfer(address _from, address _to, uint256 _value) private{
+        require(_from != address(0), "ERC20: Transfer to ZERO Address");
+        require(_to != address(0), "ERC20: Transfer to ZERO Address");
+
+        uint256 fromBalance = _balances[_from];
+        require(_value <= fromBalance,"ERC20: transfer amount exceeds balance");
+
+        _balances[_from] = _balances[_from] - _value;
+        _balances[_to] = _balances[_to] + _value;
+
+        //emit Transfer(from, to, amount);
         
     }
 
     function approve(address _spender, uint256 _value) public returns (bool success)
     {
-        
+        _approve(msg.sender, _spender, _value);
+        return true;
+    }
+
+    function _approve(address owner, address spender, uint256 amount) private {
+
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
+
+        _allowances[owner][spender] = amount;
+       //emit Approval(owner, spender, amount);
     }
 
     function allowance(address _owner, address _spender) public view returns (uint256 remaining)
