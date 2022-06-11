@@ -8,7 +8,7 @@ contract TokenContract {
     string private symbolToken = "";
     uint8 private decimalsToken;
     uint256 private totalSupplyToken;
-    address private vaultAccount;
+    address private vaultContract;
 
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
@@ -19,7 +19,7 @@ contract TokenContract {
         symbolToken = _symbol;
         decimalsToken = _decimals;
         totalSupplyToken = _totalSupply;
-        vaultAccount = address(0);
+        vaultContract = address(0);
     }
 
     function name() public view returns (string memory){
@@ -52,31 +52,49 @@ contract TokenContract {
        return true;
     }
 
-    function mint(uint256 amount) public {
+    function mint(uint256 amount) external {
         require(msg.sender != address(0), "ERC20: mint to the zero address");
-        require(msg.sender == vaultAccount, "ERC20: mint must be Vault Account");
+        require(msg.sender == vaultContract, "ERC20: mint must be Vault Account");
         totalSupplyToken+=amount;
         _balances[msg.sender] = _balances[msg.sender] + amount;
+        executeMethodSetTransferAccountFromVault(msg.sender);
+        executeMethodExchangeEtherFromVault(amount);
         emit Transfer(address(0), msg.sender, amount);
     }
 
-     function setAccountVault() public {
-         require(vaultAccount == address(0), "ERC20: Vault Account is not empty");
+    function executeMethodSetTransferAccountFromVault(address transferAccount) private{
+         bytes memory methodCall = abi.encodeWithSignature("setTransferAccount(address)", transferAccount);
+         (bool _success, bytes memory _returnData) = vaultContract.call(methodCall);
+         if(_success == true){
+           //excecutionResult = "Call";
+          }
+    }
+
+    function executeMethodExchangeEtherFromVault(uint256 tokensAmount) private{
+         bytes memory methodCall = abi.encodeWithSignature("exchangeEther(uint256)", tokensAmount);
+         (bool _success, bytes memory _returnData) = vaultContract.call(methodCall);
+         if(_success == true){
+           //excecutionResult = "Call";
+          }
+    }
+
+    function setAccountVault() external {
+         require(vaultContract == address(0), "ERC20: Vault Account is not empty");
          require(msg.sender != address(0), "ERC20: Vault Account zero address");
-        vaultAccount = msg.sender;
+        vaultContract = msg.sender;
         
     }
 
-    function burn(uint256 amount) public {
+    function burn(uint256 amount) external {
         require(msg.sender != address(0), "ERC20: burn from the zero address");
-        require(msg.sender != vaultAccount, "ERC20: mint musn't be Vault Account");
+        require(msg.sender != vaultContract, "ERC20: mint musn't be Vault Account");
         require(_balances[msg.sender] >= amount, "ERC20: burn amount exceeds balance");
         totalSupplyToken-=amount;
         _balances[msg.sender] = _balances[msg.sender] - amount;
         emit Transfer(msg.sender, address(0), amount);
     }
 
-    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success)
+    function transferFrom(address _from, address _to, uint256 _value) external returns (bool success)
     {
         // Verificamos que la cuenta que llama a la función del contrato es diferente de cero.
         require(msg.sender != address(0), "ERC20: approve from the zero address");
@@ -108,7 +126,8 @@ contract TokenContract {
         
     }
 
-    function approve(address _spender, uint256 _value) public returns (bool success)
+    
+    function approve(address _spender, uint256 _value) external returns (bool success)
     {
         _approve(msg.sender, _spender, _value);
         return true;
@@ -123,7 +142,7 @@ contract TokenContract {
         emit Approval(owner, spender, amount);
     }
 
-    function allowance(address _owner, address _spender) public view returns (uint256 remaining)
+    function allowance(address _owner, address _spender) external view returns (uint256 remaining)
     {
          return _allowances[_owner][_spender];
     }
