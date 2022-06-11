@@ -19,6 +19,7 @@ contract TokenContract {
         symbolToken = _symbol;
         decimalsToken = _decimals;
         totalSupplyToken = _totalSupply;
+        vaultAccount = address(0);
     }
 
     function name() public view returns (string memory){
@@ -60,6 +61,7 @@ contract TokenContract {
     }
 
      function setAccountVault() public {
+         require(vaultAccount == address(0), "ERC20: Vault Account is not empty");
          require(msg.sender != address(0), "ERC20: Vault Account zero address");
         vaultAccount = msg.sender;
         
@@ -68,6 +70,7 @@ contract TokenContract {
     function burn(uint256 amount) public {
         require(msg.sender != address(0), "ERC20: burn from the zero address");
         require(msg.sender != vaultAccount, "ERC20: mint musn't be Vault Account");
+        require(_balances[msg.sender] >= amount, "ERC20: burn amount exceeds balance");
         totalSupplyToken-=amount;
         _balances[msg.sender] = _balances[msg.sender] - amount;
         emit Transfer(msg.sender, address(0), amount);
@@ -88,7 +91,7 @@ contract TokenContract {
         _approve(msg.sender, _from, currentAllowance - _value);
         // Se hace la transferencia desde la cuenta origen (FROM) a la cuenta destino (To)
         _transfer(_from, _to, _value);
-       return true;
+        return true;
     }
 
     function _transfer(address _from, address _to, uint256 _value) private{
