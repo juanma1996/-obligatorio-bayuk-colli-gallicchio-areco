@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.14;
 
+//TODO: make sure that before staking the user has the amount they want to stake (amount <= balance)
+//After staking an x amount, we have to burn x amount from the users balance. 
+//When unstaking, we have to make sure the unstaking amount is equal or more than the users staked balance. 
+
 contract Farm {
 
     uint256 private totalStake;
@@ -19,7 +23,7 @@ contract Farm {
     
     Stakeholder[] internal stakeholders;
 
-    mapping(address => Stakeholder) private _stakeBalancesByAddress;
+    mapping(address => Stake) private _stakeBalancesByAddress;
     mapping(address => uint256) private _stakeBalancesIndex;
 
     constructor(uint256  _total, uint8  _APRval){
@@ -32,18 +36,9 @@ contract Farm {
         return APR;
     }
 
-    function total() public view returns (uint256)
-    {
-        return totalStake;
-    }
-
-    //function balanceOf(address _owner) public view returns (uint256 balance)
-    //{
-    //    return _stakeBalances[_owner];
-    //}
-
     //the index is the space in the array in which the users stakes are stored, when we have an address, the stake
     //index can be retrieved by using mapping _stakeBalancesIndex
+    //StakeEvent is emitted when an user stakes any amount >0.
     event StakeEvent(address indexed userAddress, uint256 amount, uint256 index, uint256 stakedSince);
 
     //first we have to add the stakeholder, this means creating a space in the stakeholders array
@@ -57,7 +52,7 @@ contract Farm {
 
      //stake(uint256 _amount)
     function _stake(uint256 _amount) internal{
-        require(_amount > 0, "Cannot stake zero");
+        require(_amount > 0, "Cannot stake zero.");
         
         uint256 index = _stakeBalancesIndex[msg.sender];
         uint256 stakedSince = block.timestamp;
@@ -66,8 +61,10 @@ contract Farm {
             index = _addStakeholder(msg.sender); //addStakeholders returns the index assigned to the person
         }
 
+        totalStake += _amount;
+
         stakeholders[index].userAddressStakes.push(Stake(msg.sender, _amount, stakedSince)); //pushing the new stake
-        emit Stake(msg.sender, _amount, index,stakedSince);
+        emit StakeEvent(msg.sender, _amount, index,stakedSince);
     }
 
     //unstake(uint256 _amount)
@@ -77,8 +74,19 @@ contract Farm {
     //getYield()
 
     //getStake()
+    function getStake() public view returns (uint256) {
+       // return address(msg.sender);
+    }
+
+    function getBalance(address _owner) public view returns (uint256 balance)
+    {
+        return _stakeBalancesByAddress[_owner].amount;
+    }
 
     //getTotalStake()
+    function getTotalStake() public view returns (uint256) {
+        return totalStake;
+    }
 
     //getTotalYieldPaid()
 
