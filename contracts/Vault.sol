@@ -3,16 +3,17 @@ pragma solidity 0.8.14;
 
 contract Vault{
 
-    address public tokenContract;
+    address private tokenContract;
 
     constructor(){}
 
-    function setTokenContract(address newAddress) public {
+    function setTransferAccount(address newAddress) public {
         tokenContract = newAddress;
     }
 
-    function _mint(address account, uint256 amount) internal virtual {
-        bytes memory mintToken = abi.encodeWithSignature("_mint(address, uint256)", account, amount);
-        tokenContract.call(mintToken);
+    function _mint(uint256 amount) public returns (bool success) {
+        bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amount);
+        (bool _success, bytes memory _returnData) = tokenContract.call(mintToken);
+        return _success;
     }
 }
