@@ -149,6 +149,4 @@ contract TokenContract {
 
     event Transfer(address _from, address _to, uint256 _value);
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
-    
-
 }
