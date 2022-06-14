@@ -6,11 +6,12 @@ contract Vault{
     address private _tokenContract;
     mapping(address => bool) private _admins;
 
-    constructor(){}
+    constructor(){
+        _admins[msg.sender] = true;
+    }
 
     function setTransferAccount(address newAddress) public {
         _tokenContract = newAddress;
-        _admins[msg.sender] = true;
     }
 
     function mint(uint256 amount) public returns (bool success) {
