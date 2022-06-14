@@ -57,8 +57,6 @@ contract TokenContract {
         require(msg.sender == vaultContract, "ERC20: mint must be Vault Account");
         totalSupplyToken+=amount;
         _balances[msg.sender] = _balances[msg.sender] + amount;
-        executeMethodSetTransferAccountFromVault(msg.sender);
-        executeMethodExchangeEtherFromVault(amount);
         emit Transfer(address(0), msg.sender, amount);
     }
 
@@ -96,18 +94,18 @@ contract TokenContract {
 
     function transferFrom(address _from, address _to, uint256 _value) external returns (bool success)
     {
-        // Verificamos que la cuenta que llama a la función del contrato es diferente de cero.
+        // We verify that the account calling the contract function is non-zero.
         require(msg.sender != address(0), "ERC20: approve from the zero address");
-        // Verificamos que la cuenta origen la cual transferirá tokens a otra cuenta es diferente de cero.
+        // We verify that the origin account which will transfer tokens to another account is different from zero.
         require(_from != address(0), "ERC20: From Account is the zero address");
-         // Verificamos que la cuenta destino a la cual se transferirá tokens es diferente de cero.
+         // We verify that the destination account to which the tokens will be transferred is different from zero.
         require(_to != address(0), "ERC20: To Account is the zero address");
-        // Verificamos que la cuenta que llama a la función tiene permiso para transferir desde la cuenta de origen a otra el monto indicado.
+        // We verify that the account that calls the function has permission to transfer the indicated amount from the source account to another.
         require(_allowances[msg.sender][_from] >= _value, "ERC20: transfer amount exceeds allowance");
         uint256 currentAllowance = _allowances[msg.sender][_from];
-        // Se da de baja la cantidad "permitida"
+        // Amount is subtracted
         _approve(msg.sender, _from, currentAllowance - _value);
-        // Se hace la transferencia desde la cuenta origen (FROM) a la cuenta destino (To)
+        // The transfer is made from the source account (FROM) to the destination account (To)
         _transfer(_from, _to, _value);
         return true;
     }
