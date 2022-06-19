@@ -3,6 +3,7 @@
 node_modules
 artifacts
 cache
+bin
 node_modules
 package-lock.json
 package.json

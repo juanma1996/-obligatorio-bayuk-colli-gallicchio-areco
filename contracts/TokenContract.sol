@@ -10,6 +10,7 @@ contract TokenContract {
     uint256 private totalSupplyToken;
     address private vaultContract;
 
+    mapping(address => bool) private _admins;
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
 
@@ -20,6 +21,7 @@ contract TokenContract {
         decimalsToken = _decimals;
         totalSupplyToken = _totalSupply;
         vaultContract = address(0);
+         _admins[msg.sender] = true;
     }
 
     function name() public view returns (string memory){
@@ -61,18 +63,18 @@ contract TokenContract {
     }
 
     function executeMethodSetTransferAccountFromVault(address transferAccount) private{
-         bytes memory methodCall = abi.encodeWithSignature("setTransferAccount(address)", transferAccount);
-         (bool _success, bytes memory _returnData) = vaultContract.call(methodCall);
-         if(_success == true){
-           //excecutionResult = "Call";
-          }
+        bytes memory methodCall = abi.encodeWithSignature("setTransferAccount(address)", transferAccount);
+        (bool _success, bytes memory _returnData) = vaultContract.call(methodCall);
+        if(_success == true){
+           emit SetTransferAccountFromVault(transferAccount);
+        }
     }
 
-    function executeMethodExchangeEtherFromVault(uint256 tokensAmount) private{
-         bytes memory methodCall = abi.encodeWithSignature("exchangeEther(uint256)", tokensAmount);
+    function executeMethodBurnFromVault(uint256 tokensAmount, address to) private{
+         bytes memory methodCall = abi.encodeWithSignature("burn(uint256,address)", tokensAmount, to);
          (bool _success, bytes memory _returnData) = vaultContract.call(methodCall);
          if(_success == true){
-           //excecutionResult = "Call";
+           emit BurnFromVault(tokensAmount, to);
           }
     }
 
@@ -80,6 +82,7 @@ contract TokenContract {
          require(vaultContract == address(0), "ERC20: Vault Account is not empty");
          require(msg.sender != address(0), "ERC20: Vault Account zero address");
         vaultContract = msg.sender;
+        _balances[msg.sender] = totalSupplyToken;
         
     }
 
@@ -89,6 +92,7 @@ contract TokenContract {
         require(_balances[msg.sender] >= amount, "ERC20: burn amount exceeds balance");
         totalSupplyToken-=amount;
         _balances[msg.sender] = _balances[msg.sender] - amount;
+        executeMethodBurnFromVault(amount, msg.sender);
         emit Transfer(msg.sender, address(0), amount);
     }
 
@@ -145,6 +149,29 @@ contract TokenContract {
          return _allowances[_owner][_spender];
     }
 
+    modifier onlyAdmin() 
+    {
+        require(isAdmin(), "Function accessible only by an admin");
+        _;
+    }
+
+    function addAdmin(address _admin) onlyAdmin public returns (bool success){
+        _admins[_admin] = true;
+        return true;
+    }
+
+    function removeAdmin(address _admin) onlyAdmin public returns (bool success){
+        _admins[_admin] = false;
+        return true;
+    }
+
+    function isAdmin() private view returns(bool) 
+    {
+        return _admins[msg.sender];
+    }
+
     event Transfer(address _from, address _to, uint256 _value);
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+    event BurnFromVault(uint256 tokensAmount, address to);
+    event SetTransferAccountFromVault(address transferAccount);
 }
