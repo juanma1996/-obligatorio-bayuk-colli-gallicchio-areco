@@ -21,6 +21,7 @@ contract TokenContract {
         decimalsToken = _decimals;
         totalSupplyToken = _totalSupply;
         vaultContract = address(0);
+        _balances[msg.sender] = _totalSupply;
          _admins[msg.sender] = true;
     }
 
