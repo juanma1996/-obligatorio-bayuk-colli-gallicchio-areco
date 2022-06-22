@@ -105,10 +105,10 @@ contract TokenContract {
          // We verify that the destination account to which the tokens will be transferred is different from zero.
         require(_to != address(0), "ERC20: To Account is the zero address");
         // We verify that the account that calls the function has permission to transfer the indicated amount from the source account to another.
-        require(_allowances[msg.sender][_from] >= _value, "ERC20: transfer amount exceeds allowance");
-        uint256 currentAllowance = _allowances[msg.sender][_from];
+        require(_allowances[_from][msg.sender] >= _value, "ERC20: transfer amount exceeds allowance");
+        uint256 currentAllowance = _allowances[_from][msg.sender];
         // Amount is subtracted
-        _approve(msg.sender, _from, currentAllowance - _value);
+        _approve( _from, msg.sender, currentAllowance - _value);
         // The transfer is made from the source account (FROM) to the destination account (To)
         _transfer(_from, _to, _value);
         return true;
