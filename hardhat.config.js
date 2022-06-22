@@ -1,12 +1,12 @@
 require('dotenv').config();
 require('@nomiclabs/hardhat-ethers');
-
+require("@nomiclabs/hardhat-waffle");
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
 
 module.exports = {
-  solidity: "0.8.9",
+  solidity: "0.8.14",
   networks: {
       ganache: {
       chainId: 1337,
