@@ -45,21 +45,24 @@ contract Farm {
     function _stake(uint256 _amount) internal{
         require(_amount > 0, "Cannot stake zero.");
 
+        //executeMethodApproveTokenContract(msg.sender);
+        //executeMethodTransferFromTokenContract(_amount,msg.sender);
+
         _stakes[msg.sender].amount += _amount;
         _stakes[msg.sender].since = block.timestamp;
         _stakes[msg.sender].yield = updateYield();
 
         _totalStake += _amount;
-
-       // executeMethodTransferFromTokenContract(_amount,msg.sender);
-
-        // emit StakeEvent(msg.sender, _amount, index,stakedSince);
     }
 
-    // function executeMethodTransferFromTokenContract(uint256 tokensAmount, address to) private{
-    //      bytes memory methodCall = abi.encodeWithSignature("transfer(address, uint256)", to, tokensAmount);//*-1
-    //      (bool _success, bytes memory _returnData) = _tokenContract.call(methodCall);
-    // }
+    //function executeMethodTransferFromTokenContract(uint256 tokensAmount, address to) private{
+        //bytes memory methodCall = abi.encodeWithSignature("transferFrom(address, uint256)", to, tokensAmount);
+        //(bool _success, bytes memory _returnData) = _tokenContract.call(methodCall);
+    //}
+
+    //function executeMethodApproveTokenContract(uint256 tokensAmount, address to) private{
+        
+    //}
 
     function updateYield() internal returns (uint256){
         uint256 today = block.timestamp;
@@ -67,21 +70,18 @@ contract Farm {
         uint256 updatedYield = diff * _APR / 365; //APR is in 365 days
 
         _stakes[msg.sender].yield = updatedYield;
-
+        _stakes[msg.sender].since = today; //as yield is not up to date, we had to calculate yield, to not calculate it twice next time we are staking or withdrawing we update "since"
 
         return updatedYield;
     }
 
     //unstake(uint256 _amount)
     function unstake(uint256 _amount) internal{
-         require(_amount <= _stakes[msg.sender].amount, "Cannot unstake more than stake amount.");
+        require(_amount <= _stakes[msg.sender].amount, "Cannot unstake more than stake amount.");
 
-        //calculate yield and update since to today 
         updateYield(); 
-        _stakes[msg.sender].since = block.timestamp;
         
         _stakes[msg.sender].amount -= _amount;
-        //_stakes[msg.sender].since = block.timestamp; //TODO: WHAT HAPPENS TO 'SINCE' WHEN UNSTAKING ?
 
         _totalStake -= _amount;
     }
@@ -89,8 +89,8 @@ contract Farm {
     //withdrawYield()
     function withdrawYield() external returns (uint256) {
         updateYield(); //this is because yield gets calculated the next stake a person makes, so its not up to date now
-        _stakes[msg.sender].since = block.timestamp; //as yield is not up to date, we had to calculate yield, to not calculate it twice next time we are staking or withdrowingwe update "since"
         uint256 toReturn = getYield();
+        _totalYield += toReturn;
         resetYield();
         return toReturn;
     }
@@ -108,7 +108,6 @@ contract Farm {
     //getStake()
     function getStake() public view returns (uint256) {
        return _stakes[msg.sender].amount;
-       //return _totalStake; 
     }
 
     //getTotalStake()
@@ -117,7 +116,9 @@ contract Farm {
     }
 
     //getTotalYieldPaid()
-    // obtener el total de la ganancia paga, aumentar _totalYield 
+    function getTotalYieldPaid() public view returns (uint256) {
+        return _totalYield;
+    }
 
     //getAPR()
     function getAPR() public view returns (uint256){
