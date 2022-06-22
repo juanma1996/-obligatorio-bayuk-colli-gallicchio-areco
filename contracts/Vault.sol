@@ -18,10 +18,22 @@ contract Vault{
         return _success;
     }
 
+    function getMaxAmountToTransfer() view external returns (uint256) {
+        return maxAmountToTransfer;
+    }
+
     function setMaxAmountToTransfer(uint256 maxAmount) external {
         require(maxAmount > 0, "Max amount should be a positive number");
         require(maxAmount < 2^256, "Max amount should be minor than uint limit");
         //checkear si es admin
         maxAmountToTransfer = maxAmount;
+    }
+
+    function exchangeEther(uint256 _tokensAmount) external {
+        bytes memory burnTokens = abi.encodeWithSignature("transfer(uint256,address)", _tokensAmount, msg.sender);
+        (bool _success, bytes memory _returnData) = tokenContract.call(burnTokens);
+        if (_success) {
+            //pagar según buyPrice
+        }
     }
 }
