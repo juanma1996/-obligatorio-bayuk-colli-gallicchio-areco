@@ -14,12 +14,11 @@ contract TokenContract {
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    constructor(string memory _name, string memory _symbol, uint8 _decimals, uint256 _totalSupply)
+    constructor(string memory _name, string memory _symbol, uint8 _decimals)
     {
         nameToken = _name;
         symbolToken = _symbol;
         decimalsToken = _decimals;
-        totalSupplyToken = _totalSupply;
         vaultContract = address(0);
          _admins[msg.sender] = true;
     }
