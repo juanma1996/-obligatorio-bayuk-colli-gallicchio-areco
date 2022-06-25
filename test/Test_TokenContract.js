@@ -3,6 +3,7 @@ const { waffle } = require("hardhat");
 const { deployContract, provider, solidity } = waffle;
 
 const TokenContract= require('../artifacts/contracts/TokenContract.sol/TokenContract.json');
+const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 //use(solidity.waffleChai);
 
@@ -54,7 +55,7 @@ it("TransferFrom methods its Oks", async () => {
 
 it("TransferFrom methods Fail", async () => {
     await token.approve(wallet.address, 10) ;
-    expect(await token.transferFrom(wallet.address, walletTo.address,25)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+    await expectRevert(token.transferFrom(wallet.address, walletTo.address,25),"VM Exception while processing transaction: reverted with reason string 'ERC20: transfer amount exceeds allowance'");
 })
   
 

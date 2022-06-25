@@ -14,14 +14,12 @@ contract TokenContract {
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    constructor(string memory _name, string memory _symbol, uint8 _decimals, uint256 _totalSupply)
+    constructor(string memory _name, string memory _symbol, uint8 _decimals)
     {
         nameToken = _name;
         symbolToken = _symbol;
         decimalsToken = _decimals;
-        totalSupplyToken = _totalSupply;
         vaultContract = address(0);
-        _balances[msg.sender] = _totalSupply;
          _admins[msg.sender] = true;
     }
 
@@ -106,10 +104,10 @@ contract TokenContract {
          // We verify that the destination account to which the tokens will be transferred is different from zero.
         require(_to != address(0), "ERC20: To Account is the zero address");
         // We verify that the account that calls the function has permission to transfer the indicated amount from the source account to another.
-        require(_allowances[msg.sender][_from] >= _value, "ERC20: transfer amount exceeds allowance");
-        uint256 currentAllowance = _allowances[msg.sender][_from];
+        require(_allowances[_from][msg.sender] >= _value, "ERC20: transfer amount exceeds allowance");
+        uint256 currentAllowance = _allowances[_from][msg.sender];
         // Amount is subtracted
-        _approve(msg.sender, _from, currentAllowance - _value);
+        _approve( _from, msg.sender, currentAllowance - _value);
         // The transfer is made from the source account (FROM) to the destination account (To)
         _transfer(_from, _to, _value);
         return true;
