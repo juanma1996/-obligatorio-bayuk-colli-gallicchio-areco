@@ -80,8 +80,7 @@ contract Vault{
         bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), tokensAmount);
         (bool transferSuccess, bytes memory transferReturnData) = tokenContract.call(transferTokens);
         if (transferSuccess) {
-            //50 as buyprice example
-            uint256 amountToTransfer = tokensAmount * 50;
+            uint256 amountToTransfer = tokensAmount * sellPrice;
             payable(msg.sender).transfer(amountToTransfer);
         }
     }
