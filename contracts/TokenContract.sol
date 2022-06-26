@@ -78,11 +78,9 @@ contract TokenContract {
     }
 
     function setAccountVault() external {
-         require(vaultContract == address(0), "ERC20: Vault Account is not empty");
-         require(msg.sender != address(0), "ERC20: Vault Account zero address");
+        require(vaultContract == address(0), "ERC20: Vault Account is not empty");
+        require(msg.sender != address(0), "ERC20: Vault Account zero address");
         vaultContract = msg.sender;
-        _balances[msg.sender] = totalSupplyToken;
-        
     }
 
     function burn(uint256 amount) external {
