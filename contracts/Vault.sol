@@ -3,6 +3,8 @@ pragma solidity 0.8.14;
 
 contract Vault{
 
+    address private tokenContract;
+    uint256 private maxAmountToTransfer;
     address private _tokenContract;
     mapping(address => bool) private _admins;
 
@@ -19,7 +21,7 @@ contract Vault{
         (bool _success, bytes memory _returnData) = _tokenContract.call(mintToken);
         return _success;
     }
-    
+
     // onlyAdmin modifier that validates only 
     // if caller of function is contract admin, 
     // otherwise not
@@ -45,5 +47,26 @@ contract Vault{
     function removeAdmin(address _admin) onlyAdmin public returns (bool success){
         _admins[_admin] = false;
         return true;
+    }
+
+    function getMaxAmountToTransfer() view external returns (uint256) {
+        return maxAmountToTransfer;
+    }
+
+    function setMaxAmountToTransfer(uint256 maxAmount) external {
+        require(maxAmount > 0, "Max amount should be a positive number");
+        require(maxAmount < 2^256, "Max amount should be minor than uint limit");
+        require(isAdmin(), "Set Max amount should be accesed by administrator");
+        maxAmountToTransfer = maxAmount;
+    }
+
+    function exchangeEther(uint256 tokensAmount) external payable {
+        bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), tokensAmount);
+        (bool transferSuccess, bytes memory transferReturnData) = tokenContract.call(transferTokens);
+        if (transferSuccess) {
+            //50 as buyprice example
+            uint256 amountToTransfer = tokensAmount * 50;
+            payable(msg.sender).transfer(amountToTransfer);
+        }
     }
 }
