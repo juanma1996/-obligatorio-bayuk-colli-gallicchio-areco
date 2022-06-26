@@ -4,6 +4,7 @@ pragma solidity 0.8.14;
 contract Vault{
 
     address private tokenContract;
+    uint256 public sellPrice;
     uint256 private maxAmountToTransfer;
     address private _tokenContract;
     mapping(address => bool) private _admins;
@@ -47,6 +48,13 @@ contract Vault{
     function removeAdmin(address _admin) onlyAdmin public returns (bool success){
         _admins[_admin] = false;
         return true;
+    }
+
+    function setSellPrice(uint256 _sellPrice) external {
+        require(_sellPrice > 0, "Sell price should be a positive number");
+        require(_sellPrice < 2^256, "Sell price should be minor than uint limit");
+        require(isAdmin(), "Set Sell price should be accesed by administrator");
+        sellPrice = _sellPrice;
     }
 
     function getMaxAmountToTransfer() view external returns (uint256) {
