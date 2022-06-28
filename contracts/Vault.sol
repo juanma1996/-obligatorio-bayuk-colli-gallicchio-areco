@@ -9,6 +9,7 @@ contract Vault{
     uint256 private maxAmountToTransfer;
     address private _tokenContract;
     mapping(address => bool) private _admins;
+    event Received(address, uint);
 
     constructor(){
         _admins[msg.sender] = true;
@@ -80,8 +81,18 @@ contract Vault{
         bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), tokensAmount);
         (bool transferSuccess, bytes memory transferReturnData) = tokenContract.call(transferTokens);
         if (transferSuccess) {
-            uint256 amountToTransfer = tokensAmount * sellPrice;
+            uint256 amountToTransfer = tokensAmount * buyPrice;
             payable(msg.sender).transfer(amountToTransfer);
+        }
+    }
+
+    receive() external payable {
+        require (msg.value > 0, "Should deposit ethers to buy tokens");
+        uint256 amountToTransfer = msg.value/sellPrice;
+        bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", address(this), msg.sender, amountToTransfer);
+        (bool transferSuccess, bytes memory transferReturnData) = tokenContract.call(transferTokens);
+        if (transferSuccess) {
+            emit Received(msg.sender, msg.value);
         }
     }
 }
