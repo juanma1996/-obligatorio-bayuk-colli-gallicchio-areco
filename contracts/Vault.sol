@@ -4,9 +4,12 @@ pragma solidity 0.8.14;
 contract Vault{
 
     address private tokenContract;
+    uint256 public buyPrice;
+    uint256 public sellPrice;
     uint256 private maxAmountToTransfer;
     address private _tokenContract;
     mapping(address => bool) private _admins;
+    event Received(address, uint);
 
     constructor(){
         _admins[msg.sender] = true;
@@ -49,6 +52,20 @@ contract Vault{
         return true;
     }
 
+    function setSellPrice(uint256 _sellPrice) external {
+        require(_sellPrice > 0, "Sell price should be a positive number");
+        require(_sellPrice < 2^256, "Sell price should be minor than uint limit");
+        require(isAdmin(), "Set Sell price should be accesed by administrator");
+        sellPrice = _sellPrice;
+    }
+
+    function setBuyPrice(uint256 _buyPrice) external {
+        require(_buyPrice > 0, "Buy price should be a positive number");
+        require(_buyPrice < 2^256, "Buy price should be minor than uint limit");
+        require(isAdmin(), "Set Buy price should be accesed by administrator");
+        buyPrice = _buyPrice;
+    }
+
     function getMaxAmountToTransfer() view external returns (uint256) {
         return maxAmountToTransfer;
     }
@@ -64,9 +81,18 @@ contract Vault{
         bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), tokensAmount);
         (bool transferSuccess, bytes memory transferReturnData) = tokenContract.call(transferTokens);
         if (transferSuccess) {
-            //50 as buyprice example
-            uint256 amountToTransfer = tokensAmount * 50;
+            uint256 amountToTransfer = tokensAmount * buyPrice;
             payable(msg.sender).transfer(amountToTransfer);
+        }
+    }
+
+    receive() external payable {
+        require (msg.value > 0, "Should deposit ethers to buy tokens");
+        uint256 amountToTransfer = msg.value/sellPrice;
+        bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", address(this), msg.sender, amountToTransfer);
+        (bool transferSuccess, bytes memory transferReturnData) = tokenContract.call(transferTokens);
+        if (transferSuccess) {
+            emit Received(msg.sender, msg.value);
         }
     }
 }
