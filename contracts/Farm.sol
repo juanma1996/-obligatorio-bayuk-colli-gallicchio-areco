@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.15;
+pragma solidity 0.8.14;
 
 //TODO: make sure that before staking the user has the amount they want to stake (amount <= balance)
 //After staking an x amount, we have to burn x amount from the users balance. 
