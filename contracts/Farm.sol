@@ -45,7 +45,7 @@ contract Farm {
     function _stake(uint256 _amount) internal{
         require(_amount > 0, "Cannot stake zero.");
 
-        //TODO: executeMethodTransferFromTokenContract(_amount,msg.sender);
+        executeMethodTransferFromTokenContract(_amount,msg.sender);
 
         _stakes[msg.sender].amount += _amount;
         _stakes[msg.sender].since = block.timestamp;
@@ -54,10 +54,10 @@ contract Farm {
         _totalStake += _amount;
     }
 
-    //function executeMethodTransferFromTokenContract(uint256 tokensAmount, address to) private{
-        //bytes memory methodCall = abi.encodeWithSignature("transferFrom(address, uint256)", to, tokensAmount);
-        //(bool _success, bytes memory _returnData) = _tokenContract.call(methodCall);
-    //}
+    function executeMethodTransferFromTokenContract(uint256 tokensAmount, address to) private{
+        bytes memory methodCall = abi.encodeWithSignature("transferFrom(address, uint256)", to, tokensAmount);
+        (bool _success, bytes memory _returnData) = _tokenContract.call(methodCall);
+    }
 
     function updateYield() internal returns (uint256){
         uint256 today = block.timestamp;
