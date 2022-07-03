@@ -20,9 +20,8 @@ contract Farm {
 
     mapping(address => Stake) private _stakes;
 
-    constructor(uint256  _total, uint256 _totalY){
-        _totalStake = _total;
-        _totalYield = _totalY;
+    constructor(){
+
     }
 
     function setTokenContract(address newAddress) external
@@ -35,14 +34,7 @@ contract Farm {
         require(newAddress != address(0), "ERC20: Vault Contract Account zero address");
         _vaultContract = newAddress;
     }
-
-    function setAPRfunction() public view returns (uint256)
-    {
-        require(msg.sender == _vaultContract);
-        return _APR;
-    }
-
-     //stake(uint256 _amount)
+    
     function _stake(uint256 _amount) internal{
         require(_amount > 0, "Cannot stake zero.");
 
@@ -72,7 +64,6 @@ contract Farm {
         return updatedYield;
     }
 
-    //unstake(uint256 _amount)
     function unstake(uint256 _amount) internal{
         require(_amount <= _stakes[msg.sender].amount, "Cannot unstake more than stake amount.");
 
@@ -85,7 +76,6 @@ contract Farm {
         executeMethodMintTokenContract(_amount);
     }
 
-    //withdrawYield()
     function withdrawYield() external returns (uint256) {
         updateYield(); //this is because yield gets calculated the next stake a person makes, so its not up to date now
         uint256 toReturn = getYield();
@@ -106,33 +96,27 @@ contract Farm {
         _stakes[msg.sender].yield = 0;
     }
 
-    //getYield() 
     function getYield() public returns (uint256) {
         updateYield();
         return _stakes[msg.sender].yield; 
     }
 
-    //getStake()
     function getStake() public view returns (uint256) {
        return _stakes[msg.sender].amount;
     }
 
-    //getTotalStake()
     function getTotalStake() public view returns (uint256) {
         return _totalStake;
     }
 
-    //getTotalYieldPaid()
     function getTotalYieldPaid() public view returns (uint256) {
         return _totalYield;
     }
 
-    //getAPR()
     function getAPR() public view returns (uint256){
         return _APR;
     }
 
-    //setAPR(uint256 _value)
     function setAPR(uint256 _value) external returns (bool) { //PRE: Setter is admin
         require(msg.sender == _vaultContract);
         _APR = _value;
