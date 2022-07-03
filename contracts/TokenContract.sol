@@ -61,14 +61,6 @@ contract TokenContract {
         emit Transfer(address(0), msg.sender, amount);
     }
 
-    function executeMethodSetTransferAccountFromVault(address transferAccount) private{
-        bytes memory methodCall = abi.encodeWithSignature("setTransferAccount(address)", transferAccount);
-        (bool _success, bytes memory _returnData) = vaultContract.call(methodCall);
-        if(_success == true){
-           emit SetTransferAccountFromVault(transferAccount);
-        }
-    }
-
     function executeMethodBurnFromVault(uint256 tokensAmount, address to) private{
          bytes memory methodCall = abi.encodeWithSignature("burn(uint256,address)", tokensAmount, to);
          (bool _success, bytes memory _returnData) = vaultContract.call(methodCall);
@@ -122,7 +114,6 @@ contract TokenContract {
         _balances[_to] = _balances[_to] + _value;
 
         emit Transfer(_from, _to, _value);
-        
     }
 
     

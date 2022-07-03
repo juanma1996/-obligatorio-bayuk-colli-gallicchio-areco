@@ -11,7 +11,7 @@ contract Vault{
     mapping(address => bool) private _admins;
     event Received(address, uint);
 
-    constructor(){
+    constructor() payable{
         _admins[msg.sender] = true;
     }
 
