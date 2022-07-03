@@ -54,9 +54,10 @@ contract Farm {
         _totalStake += _amount;
     }
 
-    function executeMethodTransferFromTokenContract(uint256 tokensAmount, address to) private{
+    function executeMethodTransferFromTokenContract(uint256 tokensAmount, address to) public returns (bool success){
         bytes memory methodCall = abi.encodeWithSignature("transferFrom(address, uint256)", to, tokensAmount);
         (bool _success, bytes memory _returnData) = _tokenContract.call(methodCall);
+        return _success;
     }
 
     function updateYield() internal returns (uint256){
@@ -80,7 +81,7 @@ contract Farm {
 
         _totalStake -= _amount;
 
-        //TODO: Mint
+        //TODO: Mint //  executeMethodMintTokenContract(amountToMint);
     }
 
     //withdrawYield()
@@ -89,8 +90,15 @@ contract Farm {
         uint256 toReturn = getYield();
         _totalYield += toReturn;
         resetYield();
-        //TODO: Mint
+        //TODO: Mint //  executeMethodMintTokenContract(amountToMint);
+    
         return toReturn;
+    }
+
+    function executeMethodMintTokenContract(uint256 amountToMint) public returns (bool success) {
+        bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amountToMint);
+        (bool _success, bytes memory _returnData) = _tokenContract.call(mintToken);
+        return _success;
     }
 
     function resetYield() internal{
