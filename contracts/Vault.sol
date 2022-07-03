@@ -13,10 +13,19 @@ contract Vault{
 
     constructor() payable{
         _admins[msg.sender] = true;
+        _tokenContract = address(0);
     }
 
-    function setTransferAccount(address newAddress) public {
+     function setTransferAccount(address newAddress) public {
+        require(_tokenContract == address(0), "ERC20: Token Contract Account is not empty");
+        require(newAddress != address(0), "ERC20: Token Contract Account zero address");
         _tokenContract = newAddress;
+    }
+
+    function setVaultAccountOnTokenContract() public returns (bool success) {
+        bytes memory setVaultAccountMethod = abi.encodeWithSignature("setAccountVault()");
+        (bool _success, bytes memory _returnData) = _tokenContract.call(setVaultAccountMethod);
+        return _success;
     }
 
     function mint(uint256 amount) public returns (bool success) {
