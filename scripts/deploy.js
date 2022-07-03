@@ -39,9 +39,8 @@ async function main() {
     });
     // value is amount of ethers to transfer on the deploy
 
-    //const farmContractFactory = await ethers.getContractFactory(contractFarmPath, signer);
-    //const deployedFarmContract = await farmContractFactory.deploy();
-
+    const farmContractFactory = await ethers.getContractFactory(contractFarmPath, signer);
+    const deployedFarmContract = await farmContractFactory.deploy(process.env.TOTAL_STAKE_FARM_INITIAL, process.env.TOTAL_YIELD_FARM_INITIAL);
 
     const confirmations_number                        = 1;
     tx_hash_TokenContract                             = deployedTokenContract.deployTransaction.hash;
@@ -56,16 +55,27 @@ async function main() {
         throw new Error(vaultContractToDeploy || "Contract ERROR: Deploy transaaction is undefined or has 0 confirmations.");
     }
 
-    //Get contract read only instance
+    tx_hash_FarmContract                              = deployedFarmContract.deployTransaction.hash;
+    tx_result_FarmContract                           = await provider.waitForTransaction(tx_hash_FarmContract, confirmations_number);
+    if(tx_result_FarmContract.confirmations_number < 0 || tx_result_FarmContract === undefined){
+        throw new Error(farmContractToDeploy || "Contract ERROR: Deploy transaaction is undefined or has 0 confirmations.");
+    }
+
+    //Get TOKEN CONTRACT contract read only instance
     const tokenContractABIPath          = path.resolve(process.cwd(), "artifacts/contracts/", tokenContractToDeploy) + ".sol/" + tokenContractToDeploy + ".json";
     const tokenContractArtifact         = JSON.parse(fs.readFileSync(tokenContractABIPath, 'utf8'));
     const deployedTokenContractInstance = new ethers.Contract(deployedTokenContract.address, tokenContractArtifact.abi, signer);  
     
 
-     //Get contract read only instance
+     //Get VAULT contract read only instance
      const vaultContractABIPath          = path.resolve(process.cwd(), "artifacts/contracts/", vaultContractToDeploy) + ".sol/" + vaultContractToDeploy + ".json";
      const vaultContractArtifact         = JSON.parse(fs.readFileSync(vaultContractABIPath, 'utf8'));
      const deployedVaultContractInstance = new ethers.Contract(deployedVaultContract.address, vaultContractArtifact.abi, signer);  
+
+      //Get FARM contract read only instance
+      const farmContractABIPath          = path.resolve(process.cwd(), "artifacts/contracts/", farmContractToDeploy) + ".sol/" + farmContractToDeploy + ".json";
+      const farmContractArtifact         = JSON.parse(fs.readFileSync(farmContractABIPath, 'utf8'));
+      const deployedFarmContractInstance = new ethers.Contract(deployedFarmContract.address, farmContractArtifact.abi, signer);  
     
      const signerBalance                 = ethers.utils.formatEther(await signer.getBalance());
 
@@ -75,13 +85,25 @@ async function main() {
     const tokenDecimal= await deployedTokenContractInstance.decimals();
 
     // MINT FIRST TIME by VAULT CONTRACT
+
+    //SET TOKEN CONTRACT ADDRESS ON VAULT CONTRACT
     await deployedVaultContractInstance.setTransferAccount(deployedTokenContractInstance.address);
+
+    //SET VAULT CONTRACT ADDRESS ON TOKEN CONTRACT
+    await deployedTokenContractInstance.setAccountVault(deployedVaultContractInstance.address);
+
+    //CALL MINT METHOD ON VAULT CONTRACT. THIS METHOD CALL MINT METHOD OF TOKEN CONTRACT
     await deployedVaultContractInstance.mint(process.env.DEPLOY_MINT_AMOUNT);
+
+     //CALL totalSupply METHOD OF TOKEN CONTRACT
     const totalSupply = await deployedTokenContractInstance.totalSupply();
 
-    // MINT FIRST TIME by VAULT CONTRACT
-    //const newToken = await token.connect(walletFrom);
-    //await deployedTokenContractInstance.setAccountVault();
+
+    //SET TOKEN CONTRACT ADDRESS ON FARM CONTRACT
+    //await deployedFarmContractInstance.setTokenContract(deployedTokenContractInstance.address);
+
+    //SET TOKEN CONTRACT ADDRESS ON FARM CONTRACT
+    //await deployedFarmContractInstance.setVaultContract(deployedVaultContractInstance.address);
    
     if(contractVersion != 100){
         throw new Error(`-- ${tokenContractToDeploy} contract ERROR: Version check fail`);
@@ -95,18 +117,20 @@ async function main() {
         console.log("-- Token Name:\t", tokenName);
         console.log("-- Token Symbol:\t", tokenSymbol);
         console.log("-- Token decimals:\t", parseInt(tokenDecimal));
-        console.log("-----------------------------------------------------------------------------");
+      
 
 
         console.log("-----------------------------------------------------------------------------");
         console.log("-- Deployed contract:\t", vaultContractToDeploy);
+        console.log("-- Vault Contract address:\t", deployedVaultContractInstance.address);
         console.log("-----------------------------------------------------------------------------");
-        console.log("-- Token Contract address:\t", deployedVaultContractInstance.address);
-        
+        console.log("-- Deployed contract:\t", farmContractToDeploy);
+        console.log("-- Farm Contract address:\t", deployedFarmContractInstance.address);
+        console.log("-----------------------------------------------------------------------------");
         console.log("-- Total Supply:\t", parseInt(totalSupply));
 
 
-
+        console.log("-----------------------------------------------------------------------------");
         console.log("-- Signer address:\t", signer.address);
         console.log("-- Signer balance:\t", signerBalance);
         console.log("-----------------------------------------------------------------------------");

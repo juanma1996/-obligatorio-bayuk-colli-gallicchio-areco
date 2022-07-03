@@ -13,24 +13,18 @@ contract Vault{
 
     constructor() payable{
         _admins[msg.sender] = true;
-        _tokenContract = address(0);
     }
 
-     function setTransferAccount(address newAddress) public {
+     function setTransferAccount(address newAddress) onlyAdmin public {
         require(_tokenContract == address(0), "ERC20: Token Contract Account is not empty");
         require(newAddress != address(0), "ERC20: Token Contract Account zero address");
         _tokenContract = newAddress;
     }
 
-    function setVaultAccountOnTokenContract() public returns (bool success) {
-        bytes memory setVaultAccountMethod = abi.encodeWithSignature("setAccountVault()");
-        (bool _success, bytes memory _returnData) = _tokenContract.call(setVaultAccountMethod);
-        return _success;
-    }
-
     function mint(uint256 amount) public returns (bool success) {
         bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amount);
         (bool _success, bytes memory _returnData) = _tokenContract.call(mintToken);
+        require(_success == true);
         return _success;
     }
 
@@ -89,6 +83,7 @@ contract Vault{
     function exchangeEther(uint256 tokensAmount) external payable {
         bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), tokensAmount);
         (bool transferSuccess, bytes memory transferReturnData) = tokenContract.call(transferTokens);
+        require(transferSuccess == true);
         if (transferSuccess) {
             uint256 amountToTransfer = tokensAmount * buyPrice;
             payable(msg.sender).transfer(amountToTransfer);
@@ -100,6 +95,7 @@ contract Vault{
         uint256 amountToTransfer = msg.value/sellPrice;
         bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", address(this), msg.sender, amountToTransfer);
         (bool transferSuccess, bytes memory transferReturnData) = tokenContract.call(transferTokens);
+        require(transferSuccess == true);
         if (transferSuccess) {
             emit Received(msg.sender, msg.value);
         }

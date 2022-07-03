@@ -19,7 +19,6 @@ contract TokenContract {
         nameToken = _name;
         symbolToken = _symbol;
         decimalsToken = _decimals;
-        vaultContract = address(0);
          _admins[msg.sender] = true;
     }
 
@@ -64,15 +63,15 @@ contract TokenContract {
     function executeMethodBurnFromVault(uint256 tokensAmount, address to) private{
          bytes memory methodCall = abi.encodeWithSignature("burn(uint256,address)", tokensAmount, to);
          (bool _success, bytes memory _returnData) = vaultContract.call(methodCall);
+        require(_success == true);
          if(_success == true){
            emit BurnFromVault(tokensAmount, to);
           }
     }
 
-    function setAccountVault() external {
-        require(vaultContract == address(0), "ERC20: Vault Account is not empty");
-        require(msg.sender != address(0), "ERC20: Vault Account zero address");
-        vaultContract = msg.sender;
+    function setAccountVault(address newAddress) onlyAdmin external {
+        require(newAddress != address(0), "ERC20: Vault Account zero address");
+        vaultContract = newAddress;
     }
 
     function burn(uint256 amount) external {
