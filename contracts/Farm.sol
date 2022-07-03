@@ -25,14 +25,15 @@ contract Farm {
         _totalYield = _totalY;
     }
 
-    function setVaultContract() external
+    function setTokenContract(address newAddress) external
     {
-         _vaultContract = msg.sender;
+        require(newAddress != address(0), "ERC20: Token Contract Account zero address");
+        _tokenContract = newAddress;
     }
 
-    function setTokenContract() external
-    {
-         _tokenContract = msg.sender;
+    function setVaultContract(address newAddress) public {
+        require(newAddress != address(0), "ERC20: Vault Contract Account zero address");
+        _vaultContract = newAddress;
     }
 
     function setAPRfunction() public view returns (uint256)

@@ -17,7 +17,8 @@ beforeEach(async () => {
   vaultMockToken = await deployMockContract(wallet, VaultContract.abi);
 
   vaultToken = await token.connect(vaultContract);
-  await vaultToken.setAccountVault();
+  adminToken = await token.connect(wallet);
+  await adminToken.setAccountVault(vaultContract.address);
   await vaultToken.mint(1000000000);
 });
 

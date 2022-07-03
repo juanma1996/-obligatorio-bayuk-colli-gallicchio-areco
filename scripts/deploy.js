@@ -12,11 +12,11 @@ const farmContractToDeploy = "Farm";
 async function main() {
     
     //Get provider
-    const provider = ethers.provider;
+    //const provider = ethers.provider;
 
     //Get provider for testnet
-    //const accessPoint_URL = process.env.GANACHE_URL;
-    //const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);
+    const accessPoint_URL = process.env.GANACHE_URL;
+    const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);
 
     //Get signer
     const[signer] = await ethers.getSigners();
@@ -100,10 +100,10 @@ async function main() {
 
 
     //SET TOKEN CONTRACT ADDRESS ON FARM CONTRACT
-    //await deployedFarmContractInstance.setTokenContract(deployedTokenContractInstance.address);
+    await deployedFarmContractInstance.setTokenContract(deployedTokenContractInstance.address);
 
     //SET TOKEN CONTRACT ADDRESS ON FARM CONTRACT
-    //await deployedFarmContractInstance.setVaultContract(deployedVaultContractInstance.address);
+    await deployedFarmContractInstance.setVaultContract(deployedVaultContractInstance.address);
    
     if(contractVersion != 100){
         throw new Error(`-- ${tokenContractToDeploy} contract ERROR: Version check fail`);
