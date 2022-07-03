@@ -45,7 +45,7 @@ describe("Token contract", function () {
       );
     });
 
-    it("Should fail if not admin", async function () {
+    it("Should fail if not admin set buyPrice", async function () {
         const expectedBuyPrice = 50;
         await hardhatVault.setBuyPrice(expectedBuyPrice);
         await expect(
@@ -57,5 +57,73 @@ describe("Token contract", function () {
           expectedBuyPrice
         );
     });
+
+    it("Should set/get sellPrice", async function () {
+        const expectedSellPrice = 50;
+        await hardhatVault.setSellPrice(expectedSellPrice);
+        const actualSellPrice = await hardhatVault.sellPrice();
+        expect(actualSellPrice).to.equal(expectedSellPrice);
+      });
+  
+      it("Should fail if sellPrice <= 0", async function () {
+        const expectedSellPrice = 50;
+        const zeroSellPrice = 0;
+        await hardhatVault.setSellPrice(expectedSellPrice);
+        await expect(
+          hardhatVault.setSellPrice(zeroSellPrice)
+        ).to.be.revertedWith("Sell price should be a positive number");
+  
+        // Sell price shouldn't have changed.
+        expect(await hardhatVault.sellPrice()).to.equal(
+          expectedSellPrice
+        );
+      });
+  
+      it("Should fail if not admin set sellPrice", async function () {
+          const expectedSellPrice = 50;
+          await hardhatVault.setSellPrice(expectedSellPrice);
+          await expect(
+            hardhatVault.connect(addr1).setSellPrice(10)
+          ).to.be.revertedWith("Set Sell price should be accesed by administrator");
+    
+          // Sell price shouldn't have changed.
+          expect(await hardhatVault.sellPrice()).to.equal(
+            expectedSellPrice
+          );
+      });
+
+      it("Should set/get maxAmountToTransfer", async function () {
+        const expectedMaxAmountToTransfer = 50;
+        await hardhatVault.setMaxAmountToTransfer(expectedMaxAmountToTransfer);
+        const actualMaxAmountToTransfer = await hardhatVault.maxAmountToTransfer();
+        expect(actualMaxAmountToTransfer).to.equal(expectedMaxAmountToTransfer);
+      });
+  
+      it("Should fail if maxAmountToTransfer <= 0", async function () {
+        const expectedMaxAmountToTransfer = 50;
+        const zeroMaxAmountToTransfer = 0;
+        await hardhatVault.setMaxAmountToTransfer(expectedMaxAmountToTransfer);
+        await expect(
+          hardhatVault.setMaxAmountToTransfer(zeroMaxAmountToTransfer)
+        ).to.be.revertedWith("Max amount should be a positive number");
+  
+        // Max amount shouldn't have changed.
+        expect(await hardhatVault.maxAmountToTransfer()).to.equal(
+          expectedMaxAmountToTransfer
+        );
+      });
+  
+      it("Should fail if not admin set maxAmountToTransfer", async function () {
+          const expectedMaxAmountToTransfer = 50;
+          await hardhatVault.setMaxAmountToTransfer(expectedMaxAmountToTransfer);
+          await expect(
+            hardhatVault.connect(addr1).setMaxAmountToTransfer(10)
+          ).to.be.revertedWith("Set Max amount should be accesed by administrator");
+    
+          // Max amount shouldn't have changed.
+          expect(await hardhatVault.maxAmountToTransfer()).to.equal(
+            expectedMaxAmountToTransfer
+          );
+      });
   });
 });

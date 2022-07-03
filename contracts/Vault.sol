@@ -6,7 +6,7 @@ contract Vault{
     address private tokenContract;
     uint256 public buyPrice;
     uint256 public sellPrice;
-    uint256 private maxAmountToTransfer;
+    uint256 public maxAmountToTransfer;
     address private _tokenContract;
     mapping(address => bool) private _admins;
     event Received(address, uint);
@@ -64,10 +64,6 @@ contract Vault{
         require(_buyPrice < 2^256, "Buy price should be minor than uint limit");
         require(isAdmin(), "Set Buy price should be accesed by administrator");
         buyPrice = _buyPrice;
-    }
-
-    function getMaxAmountToTransfer() view external returns (uint256) {
-        return maxAmountToTransfer;
     }
 
     function setMaxAmountToTransfer(uint256 maxAmount) external {
