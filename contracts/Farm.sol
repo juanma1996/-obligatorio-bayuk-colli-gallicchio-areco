@@ -81,7 +81,7 @@ contract Farm {
 
         _totalStake -= _amount;
 
-        //TODO: Mint //  executeMethodMintTokenContract(amountToMint);
+        executeMethodMintTokenContract(_amount);
     }
 
     //withdrawYield()
@@ -90,8 +90,8 @@ contract Farm {
         uint256 toReturn = getYield();
         _totalYield += toReturn;
         resetYield();
-        //TODO: Mint //  executeMethodMintTokenContract(amountToMint);
-    
+
+        executeMethodMintTokenContract(toReturn);
         return toReturn;
     }
 
