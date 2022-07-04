@@ -9,8 +9,8 @@ contract TokenContract {
     uint8 private decimalsToken;
     uint256 private totalSupplyToken;
     address private vaultContract;
+    address private _ownerAddress;
 
-    mapping(address => bool) private _admins;
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
 
@@ -19,7 +19,7 @@ contract TokenContract {
         nameToken = _name;
         symbolToken = _symbol;
         decimalsToken = _decimals;
-         _admins[msg.sender] = true;
+        _ownerAddress = msg.sender;
     }
 
     function name() public view returns (string memory){
@@ -69,7 +69,7 @@ contract TokenContract {
           }
     }
 
-    function setAccountVault(address newAddress) onlyAdmin external {
+    function setAccountVault(address newAddress) onlyOwner external {
         require(newAddress != address(0), "ERC20: Vault Account zero address");
         vaultContract = newAddress;
     }
@@ -136,25 +136,15 @@ contract TokenContract {
          return _allowances[_owner][_spender];
     }
 
-    modifier onlyAdmin() 
+    modifier onlyOwner() 
     {
-        require(isAdmin(), "Function accessible only by an admin");
+        require(isOwner(), "Function accessible only by the owner");
         _;
     }
 
-    function addAdmin(address _admin) onlyAdmin public returns (bool success){
-        _admins[_admin] = true;
-        return true;
-    }
-
-    function removeAdmin(address _admin) onlyAdmin public returns (bool success){
-        _admins[_admin] = false;
-        return true;
-    }
-
-    function isAdmin() private view returns(bool) 
+    function isOwner() private view returns(bool) 
     {
-        return _admins[msg.sender];
+        return _ownerAddress == msg.sender;
     }
 
     event Transfer(address _from, address _to, uint256 _value);
