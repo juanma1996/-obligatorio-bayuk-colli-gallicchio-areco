@@ -3,11 +3,10 @@ pragma solidity 0.8.14;
 
 contract Vault{
 
-    address private tokenContract;
+    address private _tokenContract;
     uint256 public buyPrice;
     uint256 public sellPrice;
     uint256 private maxAmountToTransfer;
-    address private _tokenContract;
     mapping(address => bool) private _admins;
     event Received(address, uint);
     mapping (uint256 => uint256) _mintMultisign;
@@ -89,7 +88,7 @@ contract Vault{
 
     function exchangeEther(uint256 tokensAmount) external payable {
         bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), tokensAmount);
-        (bool transferSuccess, bytes memory transferReturnData) = tokenContract.call(transferTokens);
+        (bool transferSuccess, bytes memory transferReturnData) = _tokenContract.call(transferTokens);
         require(transferSuccess == true);
         if (transferSuccess) {
             uint256 amountToTransfer = tokensAmount * buyPrice;
@@ -101,7 +100,7 @@ contract Vault{
         require (msg.value > 0, "Should deposit ethers to buy tokens");
         uint256 amountToTransfer = msg.value/sellPrice;
         bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", address(this), msg.sender, amountToTransfer);
-        (bool transferSuccess, bytes memory transferReturnData) = tokenContract.call(transferTokens);
+        (bool transferSuccess, bytes memory transferReturnData) = _tokenContract.call(transferTokens);
         require(transferSuccess == true);
         if (transferSuccess) {
             emit Received(msg.sender, msg.value);
