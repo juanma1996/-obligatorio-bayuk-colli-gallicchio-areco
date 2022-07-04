@@ -14,9 +14,13 @@ async function main() {
     //Get provider
     //const provider = ethers.provider;
 
-    //Get provider for testnet
-    const accessPoint_URL = process.env.GANACHE_URL;
-    const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);
+    //Get provider for testnet Ganache
+    //const accessPoint_URL = process.env.GANACHE_URL;
+    //const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);
+
+     //Get provider for testnet RINKEBY
+     const accessPoint_URL = process.env.RINKEBY_ACCESSPOINT_URL;
+     const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);
 
     //Get signer
     const[signer] = await ethers.getSigners();
@@ -40,7 +44,7 @@ async function main() {
     // value is amount of ethers to transfer on the deploy
 
     const farmContractFactory = await ethers.getContractFactory(contractFarmPath, signer);
-    const deployedFarmContract = await farmContractFactory.deploy(process.env.TOTAL_STAKE_FARM_INITIAL, process.env.TOTAL_YIELD_FARM_INITIAL);
+    const deployedFarmContract = await farmContractFactory.deploy();
 
     const confirmations_number                        = 1;
     tx_hash_TokenContract                             = deployedTokenContract.deployTransaction.hash;

@@ -19,6 +19,17 @@ module.exports = {
       accounts: [process.env.GANACHE_PRIVATE_KEY]
 
     },
+    rinkeby: {
+      chainId: 4,
+      timeout: 20000,
+      gasPrice: 8000000000,
+      gas: "auto",
+      name: "Rinkeby",
+      url: process.env.RINKEBY_ACCESSPOINT_URL,
+      from: process.env.RINKEBY_ACCOUNT,
+      accounts: [process.env.RINKEBY_PRIVATE_KEY]
+
+    },
     hardhat:{
       chainId: 31337,
       name: "hardhat",
