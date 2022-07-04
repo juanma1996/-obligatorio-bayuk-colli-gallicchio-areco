@@ -7,6 +7,7 @@ contract Vault{
     uint256 public buyPrice;
     uint256 public sellPrice;
     uint256 private maxAmountToTransfer;
+    uint256 private _maxPercentageWithdraw;
     mapping(address => bool) private _admins;
     event Received(address, uint);
     mapping (uint256 => uint256) _mintMultisign;
@@ -104,6 +105,11 @@ contract Vault{
         require(transferSuccess == true);
         if (transferSuccess) {
             emit Received(msg.sender, msg.value);
+        }
+    }
+    function setMaxPercentage(uint8 _maxPercentage) onlyAdmin external{
+        if (_maxPercentage <= 50){
+            _maxPercentageWithdraw = _maxPercentage;
         }
     }
 }
