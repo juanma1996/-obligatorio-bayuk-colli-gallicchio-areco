@@ -13,6 +13,13 @@ contract Vault{
     mapping (uint256 => uint256) _mintMultisign;
     address payable[] private _adminsList;
 
+    struct Withdraw{
+        uint256 _amount;
+        uint256 _signs;
+    }
+
+    Withdraw private _withdraw;
+
     constructor() payable{
         _admins[msg.sender] = true;
         _adminsList[0] = payable(msg.sender);
@@ -122,9 +129,22 @@ contract Vault{
             emit Received(msg.sender, msg.value);
         }
     }
+
     function setMaxPercentage(uint8 _maxPercentage) onlyAdmin external{
         if (_maxPercentage <= 50){
             _maxPercentageWithdraw = _maxPercentage;
+        }
+    }
+
+    function requestWithdraw(uint256 _amount) onlyAdmin public{
+        if (_withdraw._amount != 0){
+            require (_withdraw._amount == _amount, "Can't start two withdrawal operations simultaneous");
+        }
+
+        _withdraw._amount = _amount;
+        _withdraw._signs++;
+        if (_withdraw._signs == 2){
+            withdraw();
         }
     }
 }
