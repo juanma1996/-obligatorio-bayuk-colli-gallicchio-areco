@@ -99,16 +99,3 @@ it("Transfer methods Fail", async () => {
     await expectRevert(token.transfer(walletTo.address,25),"ERC20: transfer amount exceeds balance'");
 })
 
-it("AddAdmin fail because calle is not admin", async () => {
-  const newToken = await token.connect(walletTo);
-  await expect(newToken.addAdmin(newToken.address)).to.be.revertedWith("Function accessible only by an admin");
-})
-
-it("RemoveAdmin fail because calle is not admin", async () => {
-  const newToken = await token.connect(walletTo);
-  await expect(newToken.removeAdmin(wallet.address)).to.be.revertedWith("Function accessible only by an admin");
-})
-
-it("AddAdmin method its Oks", async () => {
-  await expect(token.addAdmin(walletTo.address));
-})

@@ -16,7 +16,7 @@ module.exports = {
       name: "Ganache",
       url: process.env.GANACHE_URL,
       from: process.env.GANACHE_ACCOUNT,
-      accounts: [process.env.GANACHE_PRIVATE_KEY]
+      accounts: [process.env.GANACHE_PRIVATE_KEY, process.env.GANACHE_PRIVATE_KEY2]
 
     },
     rinkeby: {

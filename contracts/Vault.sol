@@ -23,7 +23,7 @@ contract Vault{
 
     constructor() payable{
         _admins[msg.sender] = true;
-        _adminsList[0] = payable(msg.sender);
+        _adminsList.push(payable(msg.sender));
     }
 
     function setTransferAccount(address newAddress) onlyAdmin public {

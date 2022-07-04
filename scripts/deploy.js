@@ -15,26 +15,34 @@ async function main() {
     //const provider = ethers.provider;
 
     //Get provider for testnet Ganache
-    //const accessPoint_URL = process.env.GANACHE_URL;
-    //const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);
-
+    const accessPoint_URL = process.env.GANACHE_URL;
+    const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);  
+   
      //Get provider for testnet RINKEBY
-     const accessPoint_URL = process.env.RINKEBY_ACCESSPOINT_URL;
-     const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);
+     //const accessPoint_URL = process.env.RINKEBY_ACCESSPOINT_URL;
+     //const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);
+ 
 
     //Get signer
-    const[signer] = await ethers.getSigners();
-
+    const[signer, signer2] = await ethers.getSigners();
+    
     // Get Contracts to deploy
     const contractTokenPath = "contracts/" + tokenContractToDeploy + ".sol:" + tokenContractToDeploy;
     const contractVaultPath = "contracts/" + vaultContractToDeploy + ".sol:" + vaultContractToDeploy;
     const contractFarmPath = "contracts/" + farmContractToDeploy + ".sol:" + farmContractToDeploy;
 
+    const confirmations_number                        = 1;
 
     const tokenContractFactory = await ethers.getContractFactory(contractTokenPath, signer);
     const deployedTokenContract = await tokenContractFactory.deploy(process.env.TOKEN_NAME, 
         process.env.TOKEN_SYMBOL,
         process.env.TOKEN_DECIMAL);
+       
+    tx_hash_TokenContract                             = deployedTokenContract.deployTransaction.hash;
+    tx_result_TokenContract                           = await provider.waitForTransaction(tx_hash_TokenContract, confirmations_number);
+    if(tx_result_TokenContract.confirmations_number < 0 || tx_result_TokenContract === undefined){
+            throw new Error(tokenContractToDeploy || "Contract ERROR: Deploy transaaction is undefined or has 0 confirmations.");
+    }
 
     const vaultContractFactory = await ethers.getContractFactory(contractVaultPath, signer);
     const deployedVaultContract = await vaultContractFactory.deploy(
@@ -42,23 +50,15 @@ async function main() {
         //,gasLimit: 50000
     });
     // value is amount of ethers to transfer on the deploy
-
-    const farmContractFactory = await ethers.getContractFactory(contractFarmPath, signer);
-    const deployedFarmContract = await farmContractFactory.deploy();
-
-    const confirmations_number                        = 1;
-    tx_hash_TokenContract                             = deployedTokenContract.deployTransaction.hash;
-    tx_result_TokenContract                           = await provider.waitForTransaction(tx_hash_TokenContract, confirmations_number);
-    if(tx_result_TokenContract.confirmations_number < 0 || tx_result_TokenContract === undefined){
-        throw new Error(tokenContractToDeploy || "Contract ERROR: Deploy transaaction is undefined or has 0 confirmations.");
-    }
-
     tx_hash_VaultContract                             = deployedVaultContract.deployTransaction.hash;
     tx_result_VaultContract                           = await provider.waitForTransaction(tx_hash_VaultContract, confirmations_number);
     if(tx_result_VaultContract.confirmations_number < 0 || tx_result_VaultContract === undefined){
         throw new Error(vaultContractToDeploy || "Contract ERROR: Deploy transaaction is undefined or has 0 confirmations.");
     }
 
+    const farmContractFactory = await ethers.getContractFactory(contractFarmPath, signer);
+    const deployedFarmContract = await farmContractFactory.deploy();
+    
     tx_hash_FarmContract                              = deployedFarmContract.deployTransaction.hash;
     tx_result_FarmContract                           = await provider.waitForTransaction(tx_hash_FarmContract, confirmations_number);
     if(tx_result_FarmContract.confirmations_number < 0 || tx_result_FarmContract === undefined){
@@ -91,24 +91,50 @@ async function main() {
     // MINT FIRST TIME by VAULT CONTRACT
 
     //SET TOKEN CONTRACT ADDRESS ON VAULT CONTRACT
-    await deployedVaultContractInstance.setTransferAccount(deployedTokenContractInstance.address);
+    const tx1 = await deployedVaultContractInstance.setTransferAccount(deployedTokenContractInstance.address);
+    const tx_result_SetTransferAccount                           = await provider.waitForTransaction(tx1.hash, confirmations_number);
+    if(tx_result_SetTransferAccount.confirmations_number < 0 || tx_result_SetTransferAccount === undefined){
+        throw new Error("SetTransferAccount ERROR: Deploy transaaction is undefined or has 0 confirmations.");
+    }
 
     //SET VAULT CONTRACT ADDRESS ON TOKEN CONTRACT
-    await deployedTokenContractInstance.setAccountVault(deployedVaultContractInstance.address);
-
+    const tx2 = await deployedTokenContractInstance.setAccountVault(deployedVaultContractInstance.address);
+    const tx_result_SetAccountVault                           = await provider.waitForTransaction(tx2.hash, confirmations_number);
+    if(tx_result_SetAccountVault.confirmations_number < 0 || tx_result_SetAccountVault === undefined){
+        throw new Error("SetAccountVault ERROR: Deploy transaaction is undefined or has 0 confirmations.");
+    }
+ 
     //CALL MINT METHOD ON VAULT CONTRACT. THIS METHOD CALL MINT METHOD OF TOKEN CONTRACT
-    await deployedVaultContractInstance.mint(process.env.DEPLOY_MINT_AMOUNT);
+    const tx3 = await deployedVaultContractInstance.mint(process.env.DEPLOY_MINT_AMOUNT);
+   const account2 = await deployedVaultContractInstance.connect(signer2);
 
+    const tx_result_Mint                           = await provider.waitForTransaction(tx3.hash, confirmations_number);
+    if(tx_result_Mint.confirmations_number < 0 || tx_result_Mint === undefined){
+        throw new Error("Mint ERROR: Deploy transaaction is undefined or has 0 confirmations.");
+    }
+
+    const tx4 = await account2.mint(process.env.DEPLOY_MINT_AMOUNT);
+    const tx_result_Mint2                           = await provider.waitForTransaction(tx4.hash, confirmations_number);
+    if(tx_result_Mint2.confirmations_number < 0 || tx_result_Mint2 === undefined){
+        throw new Error("Mint 2 ERROR: Deploy transaaction is undefined or has 0 confirmations.");
+    }
      //CALL totalSupply METHOD OF TOKEN CONTRACT
-    const totalSupply = await deployedTokenContractInstance.totalSupply();
-
-
-    //SET TOKEN CONTRACT ADDRESS ON FARM CONTRACT
-    await deployedFarmContractInstance.setTokenContract(deployedTokenContractInstance.address);
-
-    //SET TOKEN CONTRACT ADDRESS ON FARM CONTRACT
-    await deployedFarmContractInstance.setVaultContract(deployedVaultContractInstance.address);
+     const totalSupply = await deployedTokenContractInstance.totalSupply();
    
+
+    //SET TOKEN CONTRACT ADDRESS ON FARM CONTRACT
+    const tx5 = await deployedFarmContractInstance.setTokenContract(deployedTokenContractInstance.address);
+    const tx_result_SetTokenContract                           = await provider.waitForTransaction(tx5.hash, confirmations_number);
+    if(tx_result_SetTokenContract.confirmations_number < 0 || tx_result_SetTokenContract === undefined){
+        throw new Error("SetTokenContract ERROR: Deploy transaaction is undefined or has 0 confirmations.");
+    }
+    //SET TOKEN CONTRACT ADDRESS ON FARM CONTRACT
+    const tx6 = await deployedFarmContractInstance.setVaultContract(deployedVaultContractInstance.address);
+    const tx_result_SetVaultContract                           = await provider.waitForTransaction(tx6.hash, confirmations_number);
+    if(tx_result_SetVaultContract.confirmations_number < 0 || tx_result_SetVaultContract === undefined){
+        throw new Error("SetVaultContract ERROR: Deploy transaaction is undefined or has 0 confirmations.");
+    }
+
     if(contractVersion != 100){
         throw new Error(`-- ${tokenContractToDeploy} contract ERROR: Version check fail`);
     }else{
@@ -122,8 +148,6 @@ async function main() {
         console.log("-- Token Symbol:\t", tokenSymbol);
         console.log("-- Token decimals:\t", parseInt(tokenDecimal));
       
-
-
         console.log("-----------------------------------------------------------------------------");
         console.log("-- Deployed contract:\t", vaultContractToDeploy);
         console.log("-- Vault Contract address:\t", deployedVaultContractInstance.address);

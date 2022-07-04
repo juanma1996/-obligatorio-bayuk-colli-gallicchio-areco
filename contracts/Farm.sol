@@ -48,7 +48,7 @@ contract Farm {
         _vaultContract = newAddress;
     }
     
-    function _stake(uint256 _amount) internal{
+    function stake(uint256 _amount) external{
         require(_amount > 0, "Cannot stake zero.");
         executeMethodTransferFromTokenContract(_amount,msg.sender);
         _stakes[msg.sender].amount += _amount;
@@ -57,10 +57,10 @@ contract Farm {
         _totalStake += _amount;
     }
 
-    function executeMethodTransferFromTokenContract(uint256 tokensAmount, address to) public returns (bool success){
+    function executeMethodTransferFromTokenContract(uint256 tokensAmount, address to) internal returns (bool success){
         bytes memory methodCall = abi.encodeWithSignature("transferFrom(address, uint256)", to, tokensAmount);
         (bool _success, bytes memory _returnData) = _tokenContract.call(methodCall);
-
+        require(_success == true);
         return _success;
     }
 
@@ -92,7 +92,7 @@ contract Farm {
         return toReturn;
     }
 
-    function executeMethodMintVaultContract(uint256 amountToMint) public returns (bool success) {
+    function executeMethodMintVaultContract(uint256 amountToMint) internal returns (bool success) {
         bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amountToMint);
         (bool _success, bytes memory _returnData) = _vaultContract.call(mintToken);
 
