@@ -147,4 +147,14 @@ contract Vault{
             withdraw();
         }
     }
+
+    function withdraw() onlyAdmin public{
+        require (_withdraw._signs == 2, "Two admin request withdrawals needed");
+        uint256 percentage = _withdraw._amount * 100 / address(this).balance;
+        require(percentage <= _maxPercentageWithdraw, "The percentage to be withdrawn must not be greater than the maximum allowed");
+        uint256 amountToTransfer = _withdraw._amount / _adminsList.length;
+        for (uint256 index = 0; index < _adminsList.length; index++) {
+            _adminsList[index].transfer(amountToTransfer);
+        }
+    }
 }
