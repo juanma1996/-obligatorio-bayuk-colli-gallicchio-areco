@@ -11,6 +11,7 @@ contract Farm {
     uint256 private _APR;
     address private _vaultContract;
     address private _tokenContract;
+    address private _owner;
 
     struct Stake{
         uint256 amount;
@@ -21,16 +22,28 @@ contract Farm {
     mapping(address => Stake) private _stakes;
 
     constructor(){
-
+        _owner = msg.sender;
     }
 
-    function setTokenContract(address newAddress) external
+    modifier onlyOwner() 
+    {
+        require(isOwner(),
+        "Function accessible only by the owner");
+        _;
+    }
+
+    function isOwner() public view returns(bool) 
+    {
+        return _owner == msg.sender;
+    }
+
+    function setTokenContract(address newAddress) onlyOwner external
     {
         require(newAddress != address(0), "ERC20: Token Contract Account zero address");
         _tokenContract = newAddress;
     }
 
-    function setVaultContract(address newAddress) public {
+    function setVaultContract(address newAddress) onlyOwner public {
         require(newAddress != address(0), "ERC20: Vault Contract Account zero address");
         _vaultContract = newAddress;
     }
