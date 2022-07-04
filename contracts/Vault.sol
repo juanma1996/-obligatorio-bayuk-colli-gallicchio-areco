@@ -12,6 +12,7 @@ contract Vault{
     event Received(address, uint);
     mapping (uint256 => uint256) _mintMultisign;
     address payable[] private _adminsList;
+    address private _farmContract;
 
     struct Withdraw{
         uint256 _amount;
@@ -25,10 +26,16 @@ contract Vault{
         _adminsList[0] = payable(msg.sender);
     }
 
-     function setTransferAccount(address newAddress) onlyAdmin public {
-        require(_tokenContract == address(0), "ERC20: Token Contract Account is not empty");
-        require(newAddress != address(0), "ERC20: Token Contract Account zero address");
+    function setTransferAccount(address newAddress) onlyAdmin public {
+        require(_tokenContract == address(0), "Token Contract Account is not empty");
+        require(newAddress != address(0), "Token Contract Account zero address");
         _tokenContract = newAddress;
+    }
+
+    function setFarmAccount(address newAddress) onlyAdmin public {
+        require(_farmContract == address(0), "Farm Contract Account is not empty");
+        require(newAddress != address(0), "Farm Contract Account zero address");
+        _farmContract = newAddress;
     }
 
     function mint(uint256 amount) public returns (bool success) {
@@ -162,5 +169,12 @@ contract Vault{
         uint256 _ethersToSend = _amount / (buyPrice * 50 / 100);
         require (address(this).balance >= _ethersToSend, "The amount to be transferred is greater than what can currently be supported");
         _address.transfer(_ethersToSend);
+    }
+
+    function setAPR(uint256 _value) external onlyAdmin returns (bool) {
+        bytes memory _setAPR = abi.encodeWithSignature("setAPR(uint256)", _value);
+        (bool _success, bytes memory _returnData) = _farmContract.call(_setAPR);
+        
+        return _success;
     }
 }
