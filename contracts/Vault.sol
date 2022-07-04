@@ -11,9 +11,11 @@ contract Vault{
     mapping(address => bool) private _admins;
     event Received(address, uint);
     mapping (uint256 => uint256) _mintMultisign;
+    address payable[] private _adminsList;
 
     constructor() payable{
         _admins[msg.sender] = true;
+        _adminsList[0] = payable(msg.sender);
     }
 
      function setTransferAccount(address newAddress) onlyAdmin public {
@@ -54,11 +56,24 @@ contract Vault{
 
     function addAdmin(address _admin) onlyAdmin public returns (bool success){
         _admins[_admin] = true;
+        _adminsList[_adminsList.length] = payable(msg.sender);
         return true;
     }
 
     function removeAdmin(address _admin) onlyAdmin public returns (bool success){
         _admins[_admin] = false;
+        bool adminFound = false;
+        for (uint256 index = 0; index < _adminsList.length; index++) {
+            if(_adminsList[index] == msg.sender){
+                _adminsList[index] = _adminsList[_adminsList.length - 1];
+                adminFound = true;
+                break;
+            }
+        }
+
+        if(adminFound){
+            delete _adminsList[_adminsList.length - 1];
+        }
         return true;
     }
 
