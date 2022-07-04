@@ -66,7 +66,7 @@ contract Farm {
         updateYield(); 
         _stakes[msg.sender].amount -= _amount;
         _totalStake -= _amount;
-        executeMethodMintTokenContract(_amount);
+        executeMethodMintVaultContract(_amount);
     }
 
     function withdrawYield() external returns (uint256) {
@@ -74,14 +74,14 @@ contract Farm {
         uint256 toReturn = getYield();
         _totalYield += toReturn;
         resetYield();
-        executeMethodMintTokenContract(toReturn);
-        
+        executeMethodMintVaultContract(toReturn);
+
         return toReturn;
     }
 
-    function executeMethodMintTokenContract(uint256 amountToMint) public returns (bool success) {
+    function executeMethodMintVaultContract(uint256 amountToMint) public returns (bool success) {
         bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amountToMint);
-        (bool _success, bytes memory _returnData) = _tokenContract.call(mintToken);
+        (bool _success, bytes memory _returnData) = _vaultContract.call(mintToken);
 
         return _success;
     }
