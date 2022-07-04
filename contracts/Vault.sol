@@ -10,6 +10,7 @@ contract Vault{
     address private _tokenContract;
     mapping(address => bool) private _admins;
     event Received(address, uint);
+    mapping (uint256 => uint256) _mintMultisign;
 
     constructor() payable{
         _admins[msg.sender] = true;
@@ -22,10 +23,16 @@ contract Vault{
     }
 
     function mint(uint256 amount) public returns (bool success) {
-        bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amount);
-        (bool _success, bytes memory _returnData) = _tokenContract.call(mintToken);
-        require(_success == true);
-        return _success;
+        _mintMultisign[amount]++;
+        if(_mintMultisign[amount] == 2){
+            _mintMultisign[amount] = 0;
+            bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amount);
+            (bool _success, bytes memory _returnData) = _tokenContract.call(mintToken);
+            require(_success == true);
+            return _success;
+        }
+
+        return false;       
     }
 
     // onlyAdmin modifier that validates only 
