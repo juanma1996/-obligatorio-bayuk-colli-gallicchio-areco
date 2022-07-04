@@ -125,7 +125,7 @@ contract Farm {
         return _APR;
     }
 
-    function setAPR(uint256 _value) external returns (bool) { //PRE: Setter is admin
+    function setAPR(uint256 _value) external returns (bool) {
         require(msg.sender == _vaultContract);
         _APR = _value;
 
