@@ -91,17 +91,15 @@ contract Vault{
         return true;
     }
 
-    function setSellPrice(uint256 _sellPrice) external {
+    function setSellPrice(uint256 _sellPrice) onlyAdmin external {
         require(_sellPrice > 0, "Sell price should be a positive number");
         require(_sellPrice < 2^256, "Sell price should be minor than uint limit");
-        require(isAdmin(), "Set Sell price should be accesed by administrator");
         sellPrice = _sellPrice;
     }
 
-    function setBuyPrice(uint256 _buyPrice) external {
+    function setBuyPrice(uint256 _buyPrice) onlyAdmin external {
         require(_buyPrice > 0, "Buy price should be a positive number");
         require(_buyPrice < 2^256, "Buy price should be minor than uint limit");
-        require(isAdmin(), "Set Buy price should be accesed by administrator");
         buyPrice = _buyPrice;
     }
 
@@ -109,14 +107,14 @@ contract Vault{
         return maxAmountToTransfer;
     }
 
-    function setMaxAmountToTransfer(uint256 maxAmount) external {
+    function setMaxAmountToTransfer(uint256 maxAmount) onlyAdmin external {
         require(maxAmount > 0, "Max amount should be a positive number");
         require(maxAmount < 2^256, "Max amount should be minor than uint limit");
-        require(isAdmin(), "Set Max amount should be accesed by administrator");
         maxAmountToTransfer = maxAmount;
     }
 
     function exchangeEther(uint256 tokensAmount) external payable {
+        require(tokensAmount <= maxAmountToTransfer, "Amount to exchange should be less that the max amount to transfer setted");
         bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), tokensAmount);
         (bool transferSuccess, bytes memory transferReturnData) = _tokenContract.call(transferTokens);
         require(transferSuccess == true);
