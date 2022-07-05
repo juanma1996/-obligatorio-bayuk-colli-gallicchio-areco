@@ -69,14 +69,14 @@ contract Farm {
     function executeMethodTransferFromTokenContract(address from, address to, uint256 tokensAmount) internal returns (bool success){
         bytes memory methodCall = abi.encodeWithSignature("transferFrom(address, address, uint256)",from, to, tokensAmount);
         (bool _success, bytes memory _returnData) = _tokenContract.call(methodCall);
-        require(_success == true);
+        require(_success == true, "Method transferFrom in Token Contract fail.");
         return _success;
     }
 
     function executeMethodTransferFromVault(address to, uint256 tokensAmount) internal returns (bool success){
         bytes memory methodCall = abi.encodeWithSignature("transfer(address, uint256)",to, tokensAmount);
         (bool _success, bytes memory _returnData) = _vaultContract.call(methodCall);
-        require(_success == true);
+        require(_success == true, "Method transfer in Vault Contract fail.");
         return _success;
     }
 

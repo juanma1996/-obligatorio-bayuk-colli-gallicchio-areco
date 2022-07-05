@@ -116,7 +116,7 @@ contract Vault{
         require(tokensAmount <= maxAmountToTransfer, "Amount to exchange should be less that the max amount to transfer setted");
         bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), tokensAmount);
         (bool transferSuccess, bytes memory transferReturnData) = _tokenContract.call(transferTokens);
-        require(transferSuccess == true);
+        require(transferSuccess == true, "Method transferFrom in Vault Contract fail.");
         if (transferSuccess) {
             uint256 amountToTransfer = tokensAmount * buyPrice;
             payable(msg.sender).transfer(amountToTransfer);
@@ -126,9 +126,9 @@ contract Vault{
     receive() external payable {
         require (msg.value > 0, "Should deposit ethers to buy tokens");
         uint256 amountToTransfer = msg.value/sellPrice;
-        bytes memory transferTokens = abi.encodeWithSignature("transferFrom(address,address,uint256)", address(this), msg.sender, amountToTransfer);
+        bytes memory transferTokens = abi.encodeWithSignature("transfer(address,uint256)", msg.sender, amountToTransfer);
         (bool transferSuccess, bytes memory transferReturnData) = _tokenContract.call(transferTokens);
-        require(transferSuccess == true);
+        require(transferSuccess == true, "Method transfer in Token Contract fail.");
         if (transferSuccess) {
             emit Received(msg.sender, msg.value);
         }
@@ -186,7 +186,7 @@ contract Vault{
         require (msg.sender == _farmContract, "Only Farm Contract can call this method.");
         bytes memory transferTokens = abi.encodeWithSignature("transfer(address,uint256)",user, tokensAmount);
         (bool transferSuccess, bytes memory transferReturnData) = _tokenContract.call(transferTokens);
-        require(transferSuccess == true);
+        require(transferSuccess == true, "Method transfer in Token Contract fail.");
         return transferSuccess;
     }
 }
