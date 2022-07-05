@@ -93,4 +93,6 @@ TokenContract - Burn & Vault - exchangeEther:
 Vault:
 [![Alt text](https://img.youtube.com/vi/mLK_fbe8Dmo/0.jpg)](https://www.youtube.com/watch?v=mLK_fbe8Dmo)
 
+Farm:
+[![Alt text](https://img.youtube.com/vi/qBp8fByaktU/0.jpg)](https://www.youtube.com/watch?v=qBp8fByaktU)
 
