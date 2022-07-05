@@ -27,7 +27,7 @@ module.exports = {
       name: "Rinkeby",
       url: process.env.RINKEBY_ACCESSPOINT_URL,
       from: process.env.RINKEBY_ACCOUNT,
-      accounts: [process.env.RINKEBY_PRIVATE_KEY]
+      accounts: [process.env.RINKEBY_PRIVATE_KEY, process.env.RINKEBY_PRIVATE_KEY2]
 
     },
     hardhat:{

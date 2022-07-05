@@ -86,7 +86,7 @@ contract Farm {
     }
 
 
-    function unstake(uint256 _amount) internal{
+    function unstake(uint256 _amount) external{
         require(_amount <= _stakes[msg.sender].amount, "Cannot unstake more than stake amount.");
         uint256 newYield = calculateYield();
         updateYield(newYield);
@@ -110,7 +110,8 @@ contract Farm {
     function getYield() public returns (uint256) {
         uint256 newYield = calculateYield();
         updateYield(newYield);
-        return _stakes[msg.sender].yield; 
+        uint256 yieldToReturn = _stakes[msg.sender].yield;
+        return yieldToReturn; 
     }
 
     function getStake() public view returns (uint256) {
@@ -130,7 +131,7 @@ contract Farm {
     }
 
     function setAPR(uint256 _value) external returns (bool) {
-        require(msg.sender == _vaultContract);
+        require(msg.sender == _vaultContract, "Vault Contract only can call this method.");
         _APR = _value;
 
         return true;
