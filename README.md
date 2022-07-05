@@ -10,7 +10,7 @@ Se adjunta un diagrama en el cual se puede ver los contratos, sus metodos y a su
 ### Componentes del proyecto
 El proyecto se divide en tres contratos:
 
-1. Contrato TokenContract
+1. Contrato TokenContract: contrato en donde se encuentra la logica del token, desde el se pueden mintear tokens bajo la orden del contrato Vault, y tambien se pueden quemar tokens de cuentas que no provengan de Vault. 
 
 2. Contrato Vault: contrato multifirma que funciona como una bóveda para resguardar los tokens minteados, a traves de este contrato los usuarios pueden comprar y vender sus tokens a cambio de ethers.
 
