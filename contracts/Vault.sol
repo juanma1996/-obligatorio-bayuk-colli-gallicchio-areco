@@ -165,6 +165,7 @@ contract Vault{
     }
 
     function burn(uint256 _amount,address payable _address) public{
+        require (msg.sender == _tokenContract, "Only Token Contract can call this method");
         uint256 _ethersToSend = _amount / (buyPrice * 50 / 100);
         require (address(this).balance >= _ethersToSend, "The amount to be transferred is greater than what can currently be supported");
         _address.transfer(_ethersToSend);

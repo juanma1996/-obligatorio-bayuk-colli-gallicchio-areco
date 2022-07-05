@@ -126,6 +126,7 @@ contract TokenContract {
     {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
+        require(_balances[owner] >= amount, "Approve amount exceeds owner balance");
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
