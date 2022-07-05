@@ -93,19 +93,16 @@ contract Vault{
 
     function setSellPrice(uint256 _sellPrice) onlyAdmin external {
         require(_sellPrice > 0, "Sell price should be a positive number");
-        require(_sellPrice < 2^256, "Sell price should be minor than uint limit");
         sellPrice = _sellPrice;
     }
 
     function setBuyPrice(uint256 _buyPrice) onlyAdmin external {
         require(_buyPrice > 0, "Buy price should be a positive number");
-        require(_buyPrice < 2^256, "Buy price should be minor than uint limit");
         buyPrice = _buyPrice;
     }
 
     function setMaxAmountToTransfer(uint256 maxAmount) onlyAdmin external {
         require(maxAmount > 0, "Max amount should be a positive number");
-        require(maxAmount < 2^256, "Max amount should be minor than uint limit");
         maxAmountToTransfer = maxAmount;
     }
 
