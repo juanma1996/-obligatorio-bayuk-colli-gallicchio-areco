@@ -15,12 +15,12 @@ async function main() {
     //const provider = ethers.provider;
 
     //Get provider for testnet Ganache
-    const accessPoint_URL = process.env.GANACHE_URL;
-    const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);  
+    // const accessPoint_URL = process.env.GANACHE_URL;
+    // const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);  
    
      //Get provider for testnet RINKEBY
-     //const accessPoint_URL = process.env.RINKEBY_ACCESSPOINT_URL;
-     //const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);
+     const accessPoint_URL = process.env.RINKEBY_ACCESSPOINT_URL;
+     const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);
  
 
     //Get signer
