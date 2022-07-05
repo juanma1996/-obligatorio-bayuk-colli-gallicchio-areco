@@ -11,19 +11,23 @@ contract Vault{
     mapping(address => bool) private _admins;
     event Received(address, uint);
     mapping (uint256 => uint256) _mintMultisign;
-    address payable[] private _adminsList;
     address private _farmContract;
+    uint256 private _approvedWithdraws;
+    mapping (uint256 => uint256) _withdrawHistory;
+    mapping(address => uint256) private _adminsWithdrawsQnty;
+    uint256 private _qntyAdmins;
 
     struct Withdraw{
         uint256 _amount;
         uint256 _signs;
+        address _firstSigner;
     }
 
     Withdraw private _withdraw;
 
     constructor() payable{
         _admins[msg.sender] = true;
-        _adminsList.push(payable(msg.sender));
+        _qntyAdmins++;
     }
 
     function setTransferAccount(address newAddress) onlyAdmin public {
@@ -70,24 +74,15 @@ contract Vault{
 
     function addAdmin(address _admin) onlyAdmin public returns (bool success){
         _admins[_admin] = true;
-        _adminsList[_adminsList.length] = payable(msg.sender);
+        _qntyAdmins++;
+
         return true;
     }
 
     function removeAdmin(address _admin) onlyAdmin public returns (bool success){
         _admins[_admin] = false;
-        bool adminFound = false;
-        for (uint256 index = 0; index < _adminsList.length; index++) {
-            if(_adminsList[index] == msg.sender){
-                _adminsList[index] = _adminsList[_adminsList.length - 1];
-                adminFound = true;
-                break;
-            }
-        }
+       _qntyAdmins--;
 
-        if(adminFound){
-            delete _adminsList[_adminsList.length - 1];
-        }
         return true;
     }
 
@@ -144,23 +139,30 @@ contract Vault{
     function requestWithdraw(uint256 _amount) onlyAdmin public{
         if (_withdraw._amount != 0){
             require (_withdraw._amount == _amount, "Can't start two withdrawal operations simultaneous");
+            require (_withdraw._firstSigner != msg.sender, "This user already requested a withdraw");
         }
-
+        
+        uint256 percentage = _amount * 100 / address(this).balance;
+        require(percentage <= _maxPercentageWithdraw, "The percentage to be withdrawn must not be greater than the maximum allowed");
         _withdraw._amount = _amount;
         _withdraw._signs++;
+        _withdraw._firstSigner = msg.sender;
         if (_withdraw._signs == 2){
-            withdraw();
+            _approvedWithdraws++;
+            _withdrawHistory[_approvedWithdraws] = _amount;
+            _withdraw._amount = 0;
+            _withdraw._signs = 0;
+            _withdraw._firstSigner = address(0);
         }
     }
 
     function withdraw() onlyAdmin public{
-        require (_withdraw._signs == 2, "Two admin request withdrawals needed");
-        uint256 percentage = _withdraw._amount * 100 / address(this).balance;
-        require(percentage <= _maxPercentageWithdraw, "The percentage to be withdrawn must not be greater than the maximum allowed");
-        uint256 amountToTransfer = _withdraw._amount / _adminsList.length;
-        for (uint256 index = 0; index < _adminsList.length; index++) {
-            _adminsList[index].transfer(amountToTransfer);
-        }
+        require(_approvedWithdraws > 0, "There are no withdrawals approved yet");
+        uint256 _adminWithdrawsQnty = _adminsWithdrawsQnty[msg.sender];
+        require (_approvedWithdraws > _adminWithdrawsQnty, "This user has already made all pending withdrawals");
+        _adminsWithdrawsQnty[msg.sender]++;
+        uint256 amountToTransfer = _withdrawHistory[_adminWithdrawsQnty] / _qntyAdmins;
+        payable(msg.sender).transfer(amountToTransfer);
     }
 
     function burn(uint256 _amount,address payable _address) public{
