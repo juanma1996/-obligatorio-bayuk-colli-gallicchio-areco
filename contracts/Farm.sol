@@ -52,7 +52,7 @@ contract Farm {
         require(_amount > 0, "Cannot stake zero.");
         executeMethodTransferFromTokenContract(msg.sender, _vaultContract, _amount);
         uint256 newYield = calculateYield();
-         updateYield(newYield);
+        updateYield(newYield);
         _stakes[msg.sender].amount += _amount;
        
         _totalStake += _amount;
@@ -99,7 +99,7 @@ contract Farm {
         uint256 toReturn = getYield();
         _totalYield += toReturn;
         resetYield();
-
+        executeMethodTransferFromVault(msg.sender, toReturn);
         return toReturn;
     }
 
