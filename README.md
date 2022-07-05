@@ -29,6 +29,9 @@ npx hardhat run scripts/deploy.js
 
 ### Pasos para hacer la ejecución de test del proyecto
 
+- Ejecutar el comando 'npx hardhat node' y verificar que inicializa la red local de hardhat.
+- Para correr los tests ejecutar el comando 'npx hardhat test'.
+
 ### Address de contratos deployados en testnet
 
 ###  Integrantes del equipo
