@@ -175,4 +175,12 @@ contract Vault{
         
         return _success;
     }
+
+    function transfer(address user, uint256 tokensAmount) external returns (bool) {
+        require (msg.sender == _farmContract, "Only Farm Contract can call this method.");
+        bytes memory transferTokens = abi.encodeWithSignature("transfer(address,uint256)",user, tokensAmount);
+        (bool transferSuccess, bytes memory transferReturnData) = _tokenContract.call(transferTokens);
+        require(transferSuccess == true);
+        return transferSuccess;
+    }
 }
