@@ -1,11 +1,11 @@
 [![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-c66648af7eb3fe8bc4f294546bfd86ef473780cde1dea487d3c4ff354943c9ae.svg)](https://classroom.github.com/online_ide?assignment_repo_id=7872879&assignment_repo_type=AssignmentRepo)
 
 ### Descripción del proyecto
-Mediante la aplicación de tecnicas de programación de contratos inteligentes e interconexion por medio de una DApp, se diseñó una plataforma que brinda funciones de valor para usuarios.
+Mediante la aplicación de técnicas de programación de contratos inteligentes e interconexión por medio de una DApp, se diseñó una plataforma que brinda funciones de valor para usuarios.
 
 Se creeó un token siguendo el estándar ERC-20 y un contrato que permite la compra y venta de dicho token entre los dueños de la plataforma y los usuarios siguiendo una serie de reglas de negocio. Los usuarios pueden a su vez, realizar staking del token para obtener más tokens.
 
-Se adjunta un diagrama en el cual se puede ver los contratos, sus metodos y a su vez las comunicaciones entre ellos. 
+Se adjunta al final del documento un link al diagrama en el cual se puede ver los contratos, sus metodos y a su vez las comunicaciones entre ellos.
 
 ### Componentes del proyecto
 El proyecto se divide en tres contratos:
@@ -15,6 +15,10 @@ El proyecto se divide en tres contratos:
 2. Contrato Vault: contrato multifirma que funciona como una bóveda para resguardar los tokens minteados, a traves de este contrato los usuarios pueden comprar y vender sus tokens a cambio de ethers.
 
 2. Contrato Farm: es el contrato de staking en donde los usuarios obtienen más tokens (en funcion de APR) al realizar staking sobre los suyos. 
+
+Dentro del proyecto también se encuentra la carpeta scripts que contiene el script para deployar el contrato, y la carpeta test en donde se encuentran las pruebas de los contatos correspondientes. 
+
+<img width="274" alt="proyecto-estructura" src="https://user-images.githubusercontent.com/61010536/177371688-592ce134-d264-4c51-9ece-7b2ff71f41ce.png">
 
 ### Pasos para hacer el Setup del repositorio
 - Se debe clonar el repositorio.
