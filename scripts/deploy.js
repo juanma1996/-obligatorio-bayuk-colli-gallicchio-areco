@@ -113,6 +113,12 @@ async function main() {
         throw new Error("Mint ERROR: Deploy transaaction is undefined or has 0 confirmations.");
     }
 
+    const tx7 = await deployedVaultContractInstance.addAdmin(signer2.address);
+    const tx_result_AddAdmin                          = await provider.waitForTransaction(tx7.hash, confirmations_number);
+    if(tx_result_AddAdmin.confirmations_number < 0 || tx_result_AddAdmin === undefined){
+        throw new Error("AddAdmin ERROR: Deploy transaction is undefined or has 0 confirmations.");
+    }
+
     const tx4 = await account2.mint(process.env.DEPLOY_MINT_AMOUNT);
     const tx_result_Mint2                           = await provider.waitForTransaction(tx4.hash, confirmations_number);
     if(tx_result_Mint2.confirmations_number < 0 || tx_result_Mint2 === undefined){
