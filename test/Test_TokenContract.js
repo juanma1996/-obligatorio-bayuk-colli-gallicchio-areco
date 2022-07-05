@@ -7,7 +7,7 @@ const VaultContract = require("../artifacts/contracts/Vault.sol/Vault.json");
 const { BN, expectEvent, expectRevert } = require("@openzeppelin/test-helpers");
 const { deployMockContract } = require("ethereum-waffle");
 
-describe("TokenContract", function () {
+describe("Token Contract", function () {
   let token, vaultMockToken, vaultToken;
   const [wallet, walletTo, walletFrom, vaultContract] = provider.getWallets();
 
