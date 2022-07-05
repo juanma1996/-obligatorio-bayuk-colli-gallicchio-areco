@@ -22,6 +22,10 @@ El proyecto se divide en tres contratos:
 
 ### Pasos para hacer el Deploy del proyecto
 
+Comando para deployar:
+
+npx hardhat run scripts/deploy.js
+
 ### Pasos para hacer la ejecución de test del proyecto
 
 ### Address de contratos deployados en testnet
@@ -54,6 +58,11 @@ El proyecto comenzó con reuniones semanales para definir la estructura general 
 Las tarjetas a su vez se dividieron en tareas que representan cada una los métodos requeridos en la letra. Visualizacion del tablero cuando el proyecto estaba casi en su finalidad:
 
 <img width="1091" alt="trello-cards" src="https://user-images.githubusercontent.com/61010536/177241090-6c99d2bf-24a9-4db1-a21d-baf6b372e61a.png"> 
+
+Cada tarjeta y sus tareas: 
+
+![trello-card](https://user-images.githubusercontent.com/61010536/177241950-8e855bd9-e805-48b7-830b-bb60d10b4502.jpg)
+
 
 Al avanzar el proyecto se realizaron daily meetings, y se usaron las muestras de avance en clase como reuniones retrospectivas para recibir feedback.
 
