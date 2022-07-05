@@ -90,9 +90,9 @@ contract Farm {
         require(_amount <= _stakes[msg.sender].amount, "Cannot unstake more than stake amount.");
         uint256 newYield = calculateYield();
         updateYield(newYield);
+        executeMethodTransferFromVault(msg.sender, _amount);
         _stakes[msg.sender].amount -= _amount;
         _totalStake -= _amount;
-        executeMethodTransferFromVault(msg.sender, _amount);
     }
 
     function withdrawYield() external returns (uint256) {

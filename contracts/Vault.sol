@@ -53,10 +53,11 @@ contract Vault{
             _mintMultisign[amount]._signs++;
             _mintMultisign[amount]._firstSigner = msg.sender;
         }else{
-            _mintMultisign[amount]._signs = 0;
-            _mintMultisign[amount]._firstSigner = address(0);
             bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amount);
             (bool _success, bytes memory _returnData) = _tokenContract.call(mintToken);
+            require(_success == true);
+            _mintMultisign[amount]._signs = 0;
+            _mintMultisign[amount]._firstSigner = address(0);
             return _success;
         }
 
