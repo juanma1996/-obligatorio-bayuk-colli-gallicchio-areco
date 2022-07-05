@@ -48,11 +48,12 @@ contract Vault{
     }
 
     function mint(uint256 amount) onlyAdmin public returns (bool success) {
-        if (_mintMultisign[amount]._signs != 2){
-            require (_mintMultisign[amount]._firstSigner != msg.sender, "This user already sign this mint request");
+        if (_mintMultisign[amount]._signs == 0){
+            //require (_mintMultisign[amount]._firstSigner != msg.sender, "This user already sign this mint request");
             _mintMultisign[amount]._signs++;
             _mintMultisign[amount]._firstSigner = msg.sender;
         }else{
+            require (_mintMultisign[amount]._firstSigner != msg.sender, "This user already sign this mint request");
             bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amount);
             (bool _success, bytes memory _returnData) = _tokenContract.call(mintToken);
             require(_success == true);
