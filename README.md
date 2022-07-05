@@ -85,14 +85,18 @@ El diagrama se puede ver aqui: https://drive.google.com/file/d/1zMrSiytfmbrRtowe
 ### Video
 
 Token Contract:
+
 [![Alt text](https://img.youtube.com/vi/cglizTvCrDs/0.jpg)](https://www.youtube.com/watch?v=cglizTvCrDs)
 
 TokenContract - Burn & Vault - exchangeEther:
+
 [![Alt text](https://img.youtube.com/vi/JbNlEFhC7Ak/0.jpg)](https://www.youtube.com/watch?v=JbNlEFhC7Ak)
 
 Vault:
+
 [![Alt text](https://img.youtube.com/vi/mLK_fbe8Dmo/0.jpg)](https://www.youtube.com/watch?v=mLK_fbe8Dmo)
 
 Farm:
+
 [![Alt text](https://img.youtube.com/vi/qBp8fByaktU/0.jpg)](https://www.youtube.com/watch?v=qBp8fByaktU)
 
