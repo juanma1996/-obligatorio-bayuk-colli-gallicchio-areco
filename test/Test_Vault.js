@@ -1,13 +1,12 @@
 const { use, expect } = require("chai");
 const { ethers, waffle} = require("hardhat");
-const { solidity } = require("ethereum-waffle");
 const {deployMockContract} = require('@ethereum-waffle/mock-contract');
 const {MockProvider} = require('@ethereum-waffle/provider');
 const {waffleChai} = require('@ethereum-waffle/chai');
 const TokenContractFile = require('../bin/contracts/TokenContract');
 const provider = waffle.provider;
 use(waffleChai);
-describe("Token contract", function () {
+describe("Vault contract", function () {
 
   let Vault;
   let TokenContract;
