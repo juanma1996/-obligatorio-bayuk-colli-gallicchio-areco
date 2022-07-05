@@ -50,53 +50,57 @@ contract Farm {
     
     function stake(uint256 _amount) external{
         require(_amount > 0, "Cannot stake zero.");
-        executeMethodTransferFromTokenContract(_amount,msg.sender);
+        executeMethodTransferFromTokenContract(msg.sender, _vaultContract, _amount);
+        uint256 newYield = calculateYield();
+        updateYield(newYield);
         _stakes[msg.sender].amount += _amount;
-        _stakes[msg.sender].since = block.timestamp;
-        _stakes[msg.sender].yield = updateYield();
+       
         _totalStake += _amount;
     }
 
-    function executeMethodTransferFromTokenContract(uint256 tokensAmount, address to) internal returns (bool success){
-        bytes memory methodCall = abi.encodeWithSignature("transferFrom(address, uint256)", to, tokensAmount);
+    function calculateYield() internal view returns (uint256){
+        uint256 today = block.timestamp;
+        uint256 diff = (today - _stakes[msg.sender].since) / 1 days; // / 60 / 60 / 24; //diff in days 
+        uint256 aprCalculated = diff * _APR / 365; //APR is in 365 days
+        uint256 amount = _stakes[msg.sender].amount;
+        return (aprCalculated * amount);
+    }
+
+    function executeMethodTransferFromTokenContract(address from, address to, uint256 tokensAmount) internal returns (bool success){
+        bytes memory methodCall = abi.encodeWithSignature("transferFrom(address, address, uint256)",from, to, tokensAmount);
         (bool _success, bytes memory _returnData) = _tokenContract.call(methodCall);
-        require(_success == true);
+        require(_success == true, "Method transferFrom in Token Contract fail.");
         return _success;
     }
 
-    function updateYield() internal returns (uint256){
-        uint256 today = block.timestamp;
-        uint256 diff = (today - _stakes[msg.sender].since) / 1 days; // / 60 / 60 / 24; //diff in days 
-        uint256 updatedYield = diff * _APR / 365; //APR is in 365 days
-        _stakes[msg.sender].yield = updatedYield;
-        _stakes[msg.sender].since = today; //as yield is not up to date, we had to calculate yield, to not calculate it twice next time we are staking or withdrawing we update "since"
-
-        return updatedYield;
+    function executeMethodTransferFromVault(address to, uint256 tokensAmount) internal returns (bool success){
+        bytes memory methodCall = abi.encodeWithSignature("transfer(address, uint256)",to, tokensAmount);
+        (bool _success, bytes memory _returnData) = _vaultContract.call(methodCall);
+        require(_success == true, "Method transfer in Vault Contract fail.");
+        return _success;
     }
 
-    function unstake(uint256 _amount) internal{
+    function updateYield(uint256 newYield) internal {
+        _stakes[msg.sender].yield += newYield;
+        _stakes[msg.sender].since = block.timestamp;
+    }
+
+
+    function unstake(uint256 _amount) external{
         require(_amount <= _stakes[msg.sender].amount, "Cannot unstake more than stake amount.");
-        updateYield(); 
+        uint256 newYield = calculateYield();
+        updateYield(newYield);
+        executeMethodTransferFromVault(msg.sender, _amount);
         _stakes[msg.sender].amount -= _amount;
         _totalStake -= _amount;
-        executeMethodMintVaultContract(_amount);
     }
 
     function withdrawYield() external returns (uint256) {
-        updateYield(); //this is because yield gets calculated the next stake a person makes, so its not up to date now
         uint256 toReturn = getYield();
         _totalYield += toReturn;
         resetYield();
-        executeMethodMintVaultContract(toReturn);
-
+        executeMethodTransferFromVault(msg.sender, toReturn);
         return toReturn;
-    }
-
-    function executeMethodMintVaultContract(uint256 amountToMint) internal returns (bool success) {
-        bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amountToMint);
-        (bool _success, bytes memory _returnData) = _vaultContract.call(mintToken);
-
-        return _success;
     }
 
     function resetYield() internal{
@@ -104,9 +108,10 @@ contract Farm {
     }
 
     function getYield() public returns (uint256) {
-        updateYield();
-
-        return _stakes[msg.sender].yield; 
+        uint256 newYield = calculateYield();
+        updateYield(newYield);
+        uint256 yieldToReturn = _stakes[msg.sender].yield;
+        return yieldToReturn; 
     }
 
     function getStake() public view returns (uint256) {
@@ -126,7 +131,7 @@ contract Farm {
     }
 
     function setAPR(uint256 _value) external returns (bool) {
-        require(msg.sender == _vaultContract);
+        require(msg.sender == _vaultContract, "Vault Contract only can call this method.");
         _APR = _value;
 
         return true;

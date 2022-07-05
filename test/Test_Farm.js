@@ -7,17 +7,15 @@ const VaultContract= require('../artifacts/contracts/Vault.sol/Vault.json');
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { deployMockContract } = require("ethereum-waffle");
 
-let tokenFarm, vaultMockToken, vaultToken;
-const [wallet, walletStake, walletFrom, vaultContract] = provider.getWallets();
+let tokenFarm, tokenFarm2, tokenFarm3
+const [wallet, walletStake, wallet2, wallet3] = provider.getWallets();
 
 beforeEach(async () => {
     tokenFarm = await deployContract(wallet,FarmContract);
-    //vaultMockToken = await deployMockContract(wallet, VaultContract.abi);
-  
-    //vaultToken = await token.connect(vaultContract);
-    //adminToken = await token.connect(wallet);
-    //await adminToken.setAccountVault(vaultContract.address);
-    //await vaultToken.mint(1000000000);
+    tokenFarm2 = await tokenFarm.connect(wallet2);
+    await tokenFarm2.stake(10);
+
+    tokenFarm3 = await tokenFarm.connect(wallet3);
   });
 
   it("Stake Method and GetStake Return its OK", async () => {
@@ -29,6 +27,21 @@ beforeEach(async () => {
   it("Stake Method Fail - Stake 0", async () => {
     const newToken =  tokenFarm.connect(walletStake);
     await expectRevert(newToken.stake(0),"Cannot stake zero.'");
-
-    //await expect(newToken.burn(1)).to.be.revertedWith("ERC20: burn amount exceeds balance");
   });
+
+  it("Unstake Method and GetStake Return its OK", async () => {
+    await tokenFarm2.unstake(5);
+    expect(await tokenFarm2.getStake()).to.equal(5);
+  });
+
+  it("SetVaultContract Method, setAPR Return its OK", async () => {
+    await tokenFarm.setVaultContract(wallet3.address);
+    tokenFarm3.setAPR(5);
+  });
+
+  it("GetTotalStake Method its OK", async () => {
+    await tokenFarm3.stake(10);
+    expect(await tokenFarm.getTotalStake()).to.equal(20);
+  });
+
+ 

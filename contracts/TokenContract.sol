@@ -63,7 +63,7 @@ contract TokenContract {
     function executeMethodBurnFromVault(uint256 tokensAmount, address to) private{
          bytes memory methodCall = abi.encodeWithSignature("burn(uint256,address)", tokensAmount, to);
          (bool _success, bytes memory _returnData) = vaultContract.call(methodCall);
-        require(_success == true);
+        require(_success == true, "Method Burn in Vault Contract fail.");
          if(_success == true){
            emit BurnFromVault(tokensAmount, to);
           }
