@@ -10,12 +10,16 @@ contract Vault{
     uint256 private _maxPercentageWithdraw;
     mapping(address => bool) private _admins;
     event Received(address, uint);
-    mapping (uint256 => uint256) _mintMultisign;
     address private _farmContract;
     uint256 private _approvedWithdraws;
     mapping (uint256 => uint256) _withdrawHistory;
     mapping(address => uint256) private _adminsWithdrawsQnty;
     uint256 private _qntyAdmins;
+
+    struct Mint{
+        uint256 _signs;
+        address _firstSigner;
+    }
 
     struct Withdraw{
         uint256 _amount;
@@ -24,6 +28,7 @@ contract Vault{
     }
 
     Withdraw private _withdraw;
+    mapping (uint256 => Mint) _mintMultisign;
 
     constructor() payable{
         _admins[msg.sender] = true;
@@ -42,22 +47,22 @@ contract Vault{
         _farmContract = newAddress;
     }
 
-    function mint(uint256 amount) public returns (bool success) {
-        _mintMultisign[amount]++;
-        if(_mintMultisign[amount] == 2){
-            _mintMultisign[amount] = 0;
+    function mint(uint256 amount) onlyAdmin public returns (bool success) {
+        if (_mintMultisign[amount]._signs != 2){
+            require (_mintMultisign[amount]._firstSigner != msg.sender, "This user already sign this mint request");
+            _mintMultisign[amount]._signs++;
+            _mintMultisign[amount]._firstSigner = msg.sender;
+        }else{
+            _mintMultisign[amount]._signs = 0;
+            _mintMultisign[amount]._firstSigner = address(0);
             bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amount);
             (bool _success, bytes memory _returnData) = _tokenContract.call(mintToken);
-            require(_success == true);
             return _success;
         }
 
         return false;       
     }
 
-    // onlyAdmin modifier that validates only 
-    // if caller of function is contract admin, 
-    // otherwise not
     modifier onlyAdmin() 
     {
         require(isAdmin(),
@@ -65,8 +70,6 @@ contract Vault{
         _;
     }
     
-    // function for admins to verify their are an admin. 
-    // Returns true for admins otherwise false
     function isAdmin() public view returns(bool) 
     {
         return _admins[msg.sender];
