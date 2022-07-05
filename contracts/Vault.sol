@@ -33,6 +33,7 @@ contract Vault{
     constructor() payable{
         _admins[msg.sender] = true;
         _qntyAdmins++;
+        _tokenContract = address(0);
     }
 
     function setTransferAccount(address newAddress) onlyAdmin public {
