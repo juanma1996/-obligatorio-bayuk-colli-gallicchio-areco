@@ -38,6 +38,12 @@ npx hardhat run scripts/deploy.js
 
 ### Address de contratos deployados en testnet
 
+- Token Contract address: 0x6B3d9E4E0703fd040F9EcCfd6E6B040578013a3E
+
+- Vault Contract address: 0xB4fbcaf70717d174434dc9753E1600201cf98eEb
+
+- Farm Contract address:  0x268BF035248318Fd773F3D81dE2e3FaE1C8BA0EE
+
 ###  Integrantes del equipo
 
 | Nombre      | Num. de Estudiante      |  Address |
