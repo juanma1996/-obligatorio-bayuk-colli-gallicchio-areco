@@ -22,8 +22,9 @@ El proyecto se divide en tres contratos:
 
 ### Pasos para hacer el Deploy del proyecto
 
-Comando para deployar:
+Se debe tener instalado Hardhat, y se deben configurar las variables del ambiente.
 
+Comando para deployar:
 npx hardhat run scripts/deploy.js
 
 ### Pasos para hacer la ejecución de test del proyecto
@@ -44,18 +45,18 @@ npx hardhat run scripts/deploy.js
 ### Metodología de Trabajo
 Se trabajó con el flujo de trabajo GitFlow. Las ventajas de trabajar con el mismo es tener un mayor control del flujo de trabajo, proporcionar una mayor agilidad en el momento de implementar nuevas funcionalidades, disminuir los errores que se producen a causa de mezcla de ramas, así como también para mantener una versión estable en la rama principal.
 
-Se utilizó main como rama base, develop como rama de desarrollo y a ella convergen las ramas de features implementados, se pueden encontrar a su vez algunas ramas fix.  Se realizaron también algunos pull request para aplicar la revisión entre pares (aunque generalmente la revision terminó en refactoring del código por parte de algún otro integrante del equipo) y finalmente se hizo el merge de las ramas a develop. La versión final del proyecto se encuentra en la rama develop.
+Se utilizó main como rama base, develop como rama de desarrollo y a ella convergen las ramas de features implementados, se pueden encontrar a su vez algunas ramas fix.  Se realizaron también algunos pull request para aplicar la revisión entre pares (aunque generalmente la revision terminó en refactoring del código por parte de algún otro integrante del equipo) y finalmente se hizo el merge de las ramas a develop. La versión final del proyecto se encuentra en la rama main.
 
 Se adjunta a continuación una visualizacion gráfica de las ramas, capturada en la herramienta https://fork.dev/. 
 
 <img width="1014" alt="gitflow" src="https://user-images.githubusercontent.com/61010536/177241418-2b0a79b7-7967-4b92-9a2c-f6ee4737bffc.png">
 
 El proyecto comenzó con reuniones semanales para definir la estructura general del proyecto y delegar las tareas. Para el almacenamiento de las tareas, seguimiento y el control de avance se usó Trello con tres columnas: 
-1. To Do que representa el backlog del proyecto, las tareas a realizar.
-2. Doing para las tareas en progreso.
-3. Done para significar que la tarea se termino.
+1. TO DO que representa el backlog del proyecto, las tareas a realizar.
+2. DOING para las tareas en progreso.
+3. DONE para significar que la tarea se termino.
 
-Las tarjetas a su vez se dividieron en tareas que representan cada una los métodos requeridos en la letra. Visualizacion del tablero cuando el proyecto estaba casi en su finalidad:
+Las tarjetas a su vez se dividieron en tareas que representan cada una los métodos requeridos en la letra, finalizar todas las tareas da un porcentaje de 100% en la tarjeta y se significa que la misma puede pasar a la columna DONE. Visualizacion del tablero cuando el proyecto estaba casi en su finalidad:
 
 <img width="1091" alt="trello-cards" src="https://user-images.githubusercontent.com/61010536/177241090-6c99d2bf-24a9-4db1-a21d-baf6b372e61a.png"> 
 
