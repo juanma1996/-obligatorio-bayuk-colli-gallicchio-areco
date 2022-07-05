@@ -81,3 +81,7 @@ El diagrama se puede ver aqui: https://drive.google.com/file/d/1zMrSiytfmbrRtowe
 
 ### Decisiones de Diseño
 - Para resolver el requisito de validacion de administradores en Vault se utilizó el patrón Ownable, a su vez se usó en Farm y TokenContract para asegurarse que solamente el owner del contrato sea quien aplique la función set de las address de los demás contratos para hacer posible la comunicación entre ellos. Lo que se busca con la implementación del mismo es evitar operaciones maliciosas y restringir a que solo determinadas address puedan realizar determinadas funciones.
+
+### Video
+
+[![Alt text](https://img.youtube.com/vi/cglizTvCrDs/0.jpg)](https://www.youtube.com/watch?v=cglizTvCrDs)
