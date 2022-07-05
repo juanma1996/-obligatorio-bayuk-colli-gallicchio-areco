@@ -11,6 +11,7 @@ contract Farm {
     uint256 private _APR;
     address private _vaultContract;
     address private _tokenContract;
+    address private _owner;
 
     struct Stake{
         uint256 amount;
@@ -20,113 +21,114 @@ contract Farm {
 
     mapping(address => Stake) private _stakes;
 
-    constructor(uint256  _total, uint256 _totalY){
-        _totalStake = _total;
-        _totalYield = _totalY;
+    constructor(){
+        _owner = msg.sender;
     }
 
-    function setVaultContract() external
+    modifier onlyOwner() 
     {
-         _vaultContract = msg.sender;
+        require(isOwner(),
+        "Function accessible only by the owner");
+        _;
     }
 
-    function setTokenContract() external
+    function isOwner() public view returns(bool) 
     {
-         _tokenContract = msg.sender;
+        return _owner == msg.sender;
     }
 
-    function setAPRfunction() public view returns (uint256)
+    function setTokenContract(address newAddress) onlyOwner external
     {
-        require(msg.sender == _vaultContract);
-        return _APR;
+        require(newAddress != address(0), "ERC20: Token Contract Account zero address");
+        _tokenContract = newAddress;
     }
 
-     //stake(uint256 _amount)
-    function _stake(uint256 _amount) internal{
+    function setVaultContract(address newAddress) onlyOwner public {
+        require(newAddress != address(0), "ERC20: Vault Contract Account zero address");
+        _vaultContract = newAddress;
+    }
+    
+    function stake(uint256 _amount) external{
         require(_amount > 0, "Cannot stake zero.");
-
-        //TODO: executeMethodTransferFromTokenContract(_amount,msg.sender);
-
+        executeMethodTransferFromTokenContract(_amount,msg.sender);
         _stakes[msg.sender].amount += _amount;
         _stakes[msg.sender].since = block.timestamp;
         _stakes[msg.sender].yield = updateYield();
-
         _totalStake += _amount;
     }
 
-    //function executeMethodTransferFromTokenContract(uint256 tokensAmount, address to) private{
-        //bytes memory methodCall = abi.encodeWithSignature("transferFrom(address, uint256)", to, tokensAmount);
-        //(bool _success, bytes memory _returnData) = _tokenContract.call(methodCall);
-    //}
+    function executeMethodTransferFromTokenContract(uint256 tokensAmount, address to) internal returns (bool success){
+        bytes memory methodCall = abi.encodeWithSignature("transferFrom(address, uint256)", to, tokensAmount);
+        (bool _success, bytes memory _returnData) = _tokenContract.call(methodCall);
+        require(_success == true);
+        return _success;
+    }
 
     function updateYield() internal returns (uint256){
         uint256 today = block.timestamp;
         uint256 diff = (today - _stakes[msg.sender].since) / 1 days; // / 60 / 60 / 24; //diff in days 
         uint256 updatedYield = diff * _APR / 365; //APR is in 365 days
-
         _stakes[msg.sender].yield = updatedYield;
         _stakes[msg.sender].since = today; //as yield is not up to date, we had to calculate yield, to not calculate it twice next time we are staking or withdrawing we update "since"
 
         return updatedYield;
     }
 
-    //unstake(uint256 _amount)
     function unstake(uint256 _amount) internal{
         require(_amount <= _stakes[msg.sender].amount, "Cannot unstake more than stake amount.");
-
         updateYield(); 
-        
         _stakes[msg.sender].amount -= _amount;
-
         _totalStake -= _amount;
-
-        //TODO: Mint
+        executeMethodMintVaultContract(_amount);
     }
 
-    //withdrawYield()
     function withdrawYield() external returns (uint256) {
         updateYield(); //this is because yield gets calculated the next stake a person makes, so its not up to date now
         uint256 toReturn = getYield();
         _totalYield += toReturn;
         resetYield();
-        //TODO: Mint
+        executeMethodMintVaultContract(toReturn);
+
         return toReturn;
+    }
+
+    function executeMethodMintVaultContract(uint256 amountToMint) internal returns (bool success) {
+        bytes memory mintToken = abi.encodeWithSignature("mint(uint256)", amountToMint);
+        (bool _success, bytes memory _returnData) = _vaultContract.call(mintToken);
+
+        return _success;
     }
 
     function resetYield() internal{
         _stakes[msg.sender].yield = 0;
     }
 
-    //getYield() 
     function getYield() public returns (uint256) {
         updateYield();
+
         return _stakes[msg.sender].yield; 
     }
 
-    //getStake()
     function getStake() public view returns (uint256) {
        return _stakes[msg.sender].amount;
     }
 
-    //getTotalStake()
     function getTotalStake() public view returns (uint256) {
         return _totalStake;
     }
 
-    //getTotalYieldPaid()
     function getTotalYieldPaid() public view returns (uint256) {
         return _totalYield;
     }
 
-    //getAPR()
     function getAPR() public view returns (uint256){
         return _APR;
     }
 
-    //setAPR(uint256 _value)
-    function setAPR(uint256 _value) external returns (bool) { //PRE: Setter is admin
+    function setAPR(uint256 _value) external returns (bool) {
         require(msg.sender == _vaultContract);
         _APR = _value;
+
         return true;
     }
 

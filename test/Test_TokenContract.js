@@ -17,7 +17,8 @@ beforeEach(async () => {
   vaultMockToken = await deployMockContract(wallet, VaultContract.abi);
 
   vaultToken = await token.connect(vaultContract);
-  await vaultToken.setAccountVault();
+  adminToken = await token.connect(wallet);
+  await adminToken.setAccountVault(vaultContract.address);
   await vaultToken.mint(1000000000);
 });
 
@@ -49,7 +50,7 @@ it("Approve and Allowance methods its Oks", async () => {
     expect(await token.allowance(vaultContract.address, walletTo.address)).to.equal(10);
 })
 
-it("TransferFrom methods its Oks", async () => {
+it("TransferFrom method its Oks", async () => {
   
     const newToken = await token.connect(walletFrom);
     await vaultToken.approve(walletFrom.address, 10) ;
@@ -58,7 +59,7 @@ it("TransferFrom methods its Oks", async () => {
     expect(await token.allowance(vaultContract.address, walletFrom.address)).to.equal(5);
 })
 
-it("Burn methods its Oks", async () => {
+it("Burn method its Oks", async () => {
   await vaultMockToken.mock.burn;
 
   await vaultToken.transfer(walletTo.address, 10);
@@ -67,33 +68,34 @@ it("Burn methods its Oks", async () => {
   expect(await token.balanceOf(walletTo.address)).to.equal(0);
 })
 
-//it("TransferFrom methods Fail", async () => {
-  //  await token.approve(wallet.address, 10) ;
- //   await expectRevert(token.transferFrom(wallet.address, walletTo.address,25),"VM Exception while processing transaction: reverted with reason string 'ERC20: transfer amount exceeds allowance'");
-//})
+it("TransferFrom Should fail for Amount exceeds allowed", async function () {
+  const newToken = await token.connect(walletFrom);
+  await vaultToken.approve(walletFrom.address, 10) ;
   
+  await expect(newToken.transferFrom(vaultContract.address, walletTo.address,25)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+});
 
-//const { expect, use } = require("chai");
-//const { waffle } = require("hardhat");
-//const { deployContract, provider, solidity} = waffle;
 
-//use(solidity.waffleChai);
+it("Mint fail because the caller not is Vault Account", async () => {
+    const newToken = await token.connect(walletFrom);
+    await expect(newToken.mint(1000000000)).to.be.revertedWith("ERC20: mint must be Vault Account");
+})
 
-//const TokenContract = require("../artifacts/contracts/TokenContract.sol/TokenContract.json");
 
-//describe("TokenContract") , function() {
+it("Burn fail because the caller is Vault Account", async () => {
+  await vaultMockToken.mock.burn;
+  await expect(vaultToken.burn(10)).to.be.revertedWith("ERC20: mint musn't be Vault Account");
+  
+})
 
-  //  it("Should return then name of the Token indicate in the Constructor of the Contract.", async function(){
-        //Arrange
-    //    let tokenContract;
-      //  const [ wallet, walletTo ] = provider.getWallets();
-        //tokenContract = await deployContract(wallet, TokenContract, ["Obli Token", "OTK", 8, 1000000] );
-        
-        // Act
-       // const response = await tokenContract.name();
+it("Burn methods fail for Mount to burn Exceeds balance", async () => {
+  const newToken = await token.connect(walletTo);
+  await expect(newToken.burn(1)).to.be.revertedWith("ERC20: burn amount exceeds balance");
+  
+})
 
-        //Assert 
+it("Transfer methods Fail", async () => {
+    const newToken = await token.connect(walletFrom);
+    await expectRevert(token.transfer(walletTo.address,25),"ERC20: transfer amount exceeds balance'");
+})
 
-        //expect(response).to.equal("Obli Token");
-    //});
-//}

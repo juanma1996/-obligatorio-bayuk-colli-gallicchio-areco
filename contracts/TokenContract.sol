@@ -9,8 +9,8 @@ contract TokenContract {
     uint8 private decimalsToken;
     uint256 private totalSupplyToken;
     address private vaultContract;
+    address private _ownerAddress;
 
-    mapping(address => bool) private _admins;
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
 
@@ -19,8 +19,7 @@ contract TokenContract {
         nameToken = _name;
         symbolToken = _symbol;
         decimalsToken = _decimals;
-        vaultContract = address(0);
-         _admins[msg.sender] = true;
+        _ownerAddress = msg.sender;
     }
 
     function name() public view returns (string memory){
@@ -61,26 +60,18 @@ contract TokenContract {
         emit Transfer(address(0), msg.sender, amount);
     }
 
-    function executeMethodSetTransferAccountFromVault(address transferAccount) private{
-        bytes memory methodCall = abi.encodeWithSignature("setTransferAccount(address)", transferAccount);
-        (bool _success, bytes memory _returnData) = vaultContract.call(methodCall);
-        if(_success == true){
-           emit SetTransferAccountFromVault(transferAccount);
-        }
-    }
-
     function executeMethodBurnFromVault(uint256 tokensAmount, address to) private{
          bytes memory methodCall = abi.encodeWithSignature("burn(uint256,address)", tokensAmount, to);
          (bool _success, bytes memory _returnData) = vaultContract.call(methodCall);
+        require(_success == true);
          if(_success == true){
            emit BurnFromVault(tokensAmount, to);
           }
     }
 
-    function setAccountVault() external {
-        require(vaultContract == address(0), "ERC20: Vault Account is not empty");
-        require(msg.sender != address(0), "ERC20: Vault Account zero address");
-        vaultContract = msg.sender;
+    function setAccountVault(address newAddress) onlyOwner external {
+        require(newAddress != address(0), "ERC20: Vault Account zero address");
+        vaultContract = newAddress;
     }
 
     function burn(uint256 amount) external {
@@ -122,7 +113,6 @@ contract TokenContract {
         _balances[_to] = _balances[_to] + _value;
 
         emit Transfer(_from, _to, _value);
-        
     }
 
     
@@ -146,25 +136,15 @@ contract TokenContract {
          return _allowances[_owner][_spender];
     }
 
-    modifier onlyAdmin() 
+    modifier onlyOwner() 
     {
-        require(isAdmin(), "Function accessible only by an admin");
+        require(isOwner(), "Function accessible only by the owner");
         _;
     }
 
-    function addAdmin(address _admin) onlyAdmin public returns (bool success){
-        _admins[_admin] = true;
-        return true;
-    }
-
-    function removeAdmin(address _admin) onlyAdmin public returns (bool success){
-        _admins[_admin] = false;
-        return true;
-    }
-
-    function isAdmin() private view returns(bool) 
+    function isOwner() private view returns(bool) 
     {
-        return _admins[msg.sender];
+        return _ownerAddress == msg.sender;
     }
 
     event Transfer(address _from, address _to, uint256 _value);
